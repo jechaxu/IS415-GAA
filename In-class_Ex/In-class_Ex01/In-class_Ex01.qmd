@@ -10,7 +10,7 @@ pacman::p_load(sf, tidyverse)
 ```
 
 ```{r}
-mpsz = st_read(dsn = "~/In-class_Ex01/MPSZ-2019", 
+mpsz = st_read(dsn = "~/In-class_Ex/In-class_Ex01/MPSZ-2019", 
                   layer = "MPSZ-2019")
 ```
 
