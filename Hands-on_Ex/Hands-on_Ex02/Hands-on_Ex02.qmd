@@ -413,6 +413,7 @@ tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
           legend.is.portrait = TRUE,
           legend.hist.z = 0.1) +
   tm_layout(legend.outside = TRUE,
+            legend.outside.size = 0.5,
             legend.height = 0.45, 
             legend.width = 5.0,
             legend.position = c("right", "bottom"),
