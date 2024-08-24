@@ -112,7 +112,7 @@ tm_shape(mpsz_pop2020)+
             main.title.position = "center",
             main.title.size = 1.2,
             legend.height = 0.45, 
-            legend.width = 0.35,
+            legend.outside.size = 0.5,
             frame = TRUE) +
   tm_borders(alpha = 0.5) +
   tm_compass(type="8star", size = 2) +
@@ -251,14 +251,14 @@ tm_shape(mpsz_pop2020) +
 summary(mpsz_pop2020$DEPENDENCY)
 ```
 
-With reference to the results above, we set break point at 0.60, 0.70, 0.80, and 0.90.
+With reference to the results above, we set break point at 0.50, 0.60, 0.70, 0.80, and 0.90.
 
-We also include minimum 0 and maximum 100.
+We also include minimum 0 and maximum 1.
 
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
-          breaks = c(0, 0.60, 0.70, 0.80, 0.90, 1.00)) +
+          breaks = c(0, 0.50, 0.60, 0.70, 0.80, 0.90, 1.00)) +
   tm_borders(alpha = 0.5)
 ```
 
@@ -272,6 +272,15 @@ tm_shape(mpsz_pop2020)+
           n = 6,
           style = "quantile",
           palette = "Blues") +
+  tm_borders(alpha = 0.5)
+```
+
+```{r}
+tm_shape(mpsz_pop2020)+
+  tm_fill("DEPENDENCY",
+          n = 6,
+          style = "quantile",
+          palette = "-Blues") +
   tm_borders(alpha = 0.5)
 ```
 
@@ -292,9 +301,8 @@ tm_shape(mpsz_pop2020)+
   tm_layout(main.title = "Distribution of Dependency Ratio by planning subzone \n(Jenks classification)",
             main.title.position = "center",
             main.title.size = 1,
-            legend.height = 0.45, 
-            legend.width = 0.35,
-            legend.outside = FALSE,
+            legend.height = 0.45,
+            legend.outside.size = 0.5,
             legend.position = c("right", "bottom"),
             frame = FALSE) +
   tm_borders(alpha = 0.5)
@@ -323,7 +331,7 @@ tm_shape(mpsz_pop2020)+
             main.title.position = "center",
             main.title.size = 1.2,
             legend.height = 0.45, 
-            legend.width = 0.35,
+            legend.outside.size = 0.5,
             frame = TRUE) +
   tm_borders(alpha = 0.5) +
   tm_compass(type="8star", size = 2) +
@@ -414,8 +422,7 @@ tm_shape(mpsz_pop2020[mpsz_pop2020$REGION_N=="CENTRAL REGION", ])+
           legend.hist.z = 0.1) +
   tm_layout(legend.outside = TRUE,
             legend.outside.size = 0.5,
-            legend.height = 0.45, 
-            legend.width = 5.0,
+            legend.height = 0.45,
             legend.position = c("right", "bottom"),
             frame = FALSE) +
   tm_borders(alpha = 0.5)
