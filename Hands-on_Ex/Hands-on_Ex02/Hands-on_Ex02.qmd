@@ -275,6 +275,10 @@ tm_shape(mpsz_pop2020)+
   tm_borders(alpha = 0.5)
 ```
 
+The map above is shaded in blue.
+
+To reverse the colour shading, put a "-" in front.
+
 ```{r}
 tm_shape(mpsz_pop2020)+
   tm_fill("DEPENDENCY",
