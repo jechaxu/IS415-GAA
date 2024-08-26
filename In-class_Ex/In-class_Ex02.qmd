@@ -59,9 +59,36 @@ The code chunks below imports MP19 in SHP and KML.
 
 ```{r}
 mpsz19_shp <- st_read(dsn = "data/MPSZ-2019", 
-                  layer = "MPSZ-2019")
+                  layer = "MPSZ-2019") %>%
+  st_transform(crs = 3414)
 ```
 
 ```{r}
 mpsz19_kml <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml")
+```
+
+```{r}
+preschool <- st_read("data/PreSchoolsLocation.kml") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+st_crs(mpsz19_shp)
+```
+
+```{r}
+popdata <- read.csv("data/respopagesextod2023.csv")
+```
+
+### Data Processing
+
+```{r}
+popdata2023 <- popdata  %>%
+  group_by(PA, SZ, AG)  %>%
+  summarise(`POP`=sum(`Pop`))  %>%
+  ungroup()  %>%
+  pivot_wider(names_from = AG,
+              values_from = POP)
+  
+  colnames(popdata2023)
 ```
