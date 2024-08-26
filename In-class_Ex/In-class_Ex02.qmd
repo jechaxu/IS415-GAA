@@ -21,11 +21,12 @@ pacman::p_load(sf, tidyverse)
 
 ### Importing the data sets into R
 
-One data set will be used in this in class exercise.
+Two data sets will be used in this in class exercise.
 
 -   GEOSPATIAL: Master Plan 2014 Subzone Boundary (Web) (i.e. `MP14_SUBZONE_WEB_PL`) in SHP and KML format \[ [data.gov.sg](https://data.gov.sg/) \]
+-   GEOSPATIAL: Master Plan 2019 Subzone Boundary (No Sea) in KML format.
 
-The code chunk below imports shapefile.
+The code chunk below imports shapefile for MP14.
 
 ```{r}
 mpsz14_shp <- st_read(dsn = "data/MasterPlan2014SubzoneBoundaryWebSHP", 
@@ -47,9 +48,20 @@ st_write(mpsz14_shp,
           delete_dsn = TRUE)
 ```
 
-The code chunk below imports KML file into R.
+The code chunk below imports KML file into R for MP14.
 
 ```{r}
 #| eval: false
 mpsz14_kml <- st_read("data/MP14_SUBZONE_WEB_PL.kml")
+```
+
+The code chunks below imports MP19 in SHP and KML.
+
+```{r}
+mpsz19_shp <- st_read(dsn = "data/MPSZ-2019", 
+                  layer = "MPSZ-2019")
+```
+
+```{r}
+mpsz19_kml <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml")
 ```
