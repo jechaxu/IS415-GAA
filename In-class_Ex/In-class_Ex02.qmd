@@ -19,13 +19,37 @@ The code chunk below will be used to install and load these packages in RStudio.
 pacman::p_load(sf, tidyverse)
 ```
 
-### Data Sets
+### Importing the data sets into R
 
 One data set will be used in this in class exercise.
 
 -   GEOSPATIAL: Master Plan 2014 Subzone Boundary (Web) (i.e. `MP14_SUBZONE_WEB_PL`) in SHP and KML format \[ [data.gov.sg](https://data.gov.sg/) \]
 
+The code chunk below imports shapefile.
+
 ```{r}
-mpsz = st_read(dsn = "data/MasterPlan2014SubzoneBoundaryWebSHP", 
+mpsz14_shp <- st_read(dsn = "data/MasterPlan2014SubzoneBoundaryWebSHP", 
                   layer = "MP14_SUBZONE_WEB_PL")
+```
+
+```{r}
+class(mpsz14_shp)
+```
+
+The original KML file provided by data.gov.sg was corrupted and thus was unable to be read using sf.
+
+To resolve this, we rewrite over the file. We also rename the file to a more readable file name.
+
+```{r}
+#| output: false
+st_write(mpsz14_shp,
+         "data/MP14_SUBZONE_WEB_PL.kml",
+          delete_dsn = TRUE)
+```
+
+The code chunk below imports KML file into R.
+
+```{r}
+#| eval: false
+mpsz14_kml <- st_read("data/MP14_SUBZONE_WEB_PL.kml")
 ```
