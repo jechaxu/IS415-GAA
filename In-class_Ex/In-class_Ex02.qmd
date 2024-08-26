@@ -1,0 +1,31 @@
+---
+title: "In Class Exercise 2: IS415-GAA"
+author: "Jenna Cheo"
+date: "August 26, 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  eval: true
+  echo: true
+  freeze: true
+---
+
+## Getting started
+
+The code chunk below will be used to install and load these packages in RStudio.
+
+```{r}
+pacman::p_load(sf, tidyverse)
+```
+
+### Data Sets
+
+One data set will be used in this in class exercise.
+
+-   GEOSPATIAL: Master Plan 2014 Subzone Boundary (Web) (i.e. `MP14_SUBZONE_WEB_PL`) in SHP and KML format \[ [data.gov.sg](https://data.gov.sg/) \]
+
+```{r}
+mpsz = st_read(dsn = "data/MasterPlan2014SubzoneBoundaryWebSHP", 
+                  layer = "MP14_SUBZONE_WEB_PL")
+```

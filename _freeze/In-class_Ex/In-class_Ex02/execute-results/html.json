@@ -1,0 +1,15 @@
+{
+  "hash": "02b8defdf226282a79d6a44b536e5df0",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"In Class Exercise 2: IS415-GAA\"\nauthor: \"Jenna Cheo\"\ndate: \"August 26, 2024\"\ndate-modified: \"last-modified\"\nformat: html\neditor: visual\nexecute: \n  eval: true\n  echo: true\n  freeze: true\n---\n\n\n## Getting started\n\nThe code chunk below will be used to install and load these packages in RStudio.\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, tidyverse)\n```\n:::\n\n\n### Data Sets\n\nOne data set will be used in this in class exercise.\n\n-   GEOSPATIAL: Master Plan 2014 Subzone Boundary (Web) (i.e. `MP14_SUBZONE_WEB_PL`) in SHP and KML format \\[ [data.gov.sg](https://data.gov.sg/) \\]\n\n\n::: {.cell}\n\n```{.r .cell-code}\nmpsz = st_read(dsn = \"data/MasterPlan2014SubzoneBoundaryWebSHP\", \n                  layer = \"MP14_SUBZONE_WEB_PL\")\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\nReading layer `MP14_SUBZONE_WEB_PL' from data source \n  `C:\\jechaxu\\IS415-GAA\\In-class_Ex\\data\\MasterPlan2014SubzoneBoundaryWebSHP' \n  using driver `ESRI Shapefile'\nSimple feature collection with 323 features and 15 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 2667.538 ymin: 15748.72 xmax: 56396.44 ymax: 50256.33\nProjected CRS: SVY21\n```\n\n\n:::\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

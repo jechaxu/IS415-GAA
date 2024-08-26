@@ -1,0 +1,15 @@
+{
+  "hash": "5744070db3e5817f13692e8238cddd44",
+  "result": {
+    "engine": "knitr",
+    "markdown": "::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, tidyverse)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nmpsz = st_read(dsn = \"C:/jechaxu/IS415-GAA/In-class_Ex/In-class_Ex01/MPSZ-2019\", \n                  layer = \"MPSZ-2019\")\n```\n\n::: {.cell-output .cell-output-stdout}\n\n```\nReading layer `MPSZ-2019' from data source \n  `C:\\jechaxu\\IS415-GAA\\In-class_Ex\\In-class_Ex01\\MPSZ-2019' \n  using driver `ESRI Shapefile'\nSimple feature collection with 332 features and 6 fields\nGeometry type: MULTIPOLYGON\nDimension:     XY\nBounding box:  xmin: 103.6057 ymin: 1.158699 xmax: 104.0885 ymax: 1.470775\nGeodetic CRS:  WGS 84\n```\n\n\n:::\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
