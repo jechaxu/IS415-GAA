@@ -3,6 +3,12 @@ title: "Hands-on Exercise 2"
 author: "Jenna Cheo"
 date: "23 August 2024"
 date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: true
+  echo: true
 ---
 
 ## Getting started

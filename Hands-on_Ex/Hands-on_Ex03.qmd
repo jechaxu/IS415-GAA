@@ -1,6 +1,14 @@
 ---
 title: "Hands-on Exercise 3"
 author: "Jenna Cheo"
+date: "2nd September 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: true
+  echo: true
 ---
 
 # 1st Order Spatial Point Patterns Analysis Methods
@@ -18,6 +26,7 @@ In this exercise, we will use the following datasets:
 ### Installing and Loading R packages
 
 ```{r}
+#| eval: false
 install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
 ```
 
