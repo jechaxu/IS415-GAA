@@ -19,7 +19,7 @@ For the purpose of this study, 6 R packages will be used.
 They are sf, raster, spatstat, sparr, tmap, tidyverse.
 
 ```{r}
-pacman::p_load(sf, st, tidyverse, raster, tmap, spatstat, sparr)
+pacman::p_load(sf, st, tidyverse, raster, tmap, spatstat, sparr, dplyr)
 ```
 
 ### Importing Dataset
@@ -102,7 +102,7 @@ tm_facets(by = "Month_fac",
 
 ```{r}
 fire_month <- fire_sf %>%
-  select(Month_num)
+  dplyr::select(Month_num)
 ```
 
 ```{r}
@@ -141,18 +141,8 @@ for (i in tims){
 }
 ```
 
-```{r}
-fire_yday_ppp <- fire_sf %>%
-  select(DayofYear)
+fire_yday_ppp \<- fire_sf %\>% select(DayofYear)
 
-```
+kde_yday \<- spattemp.density( fire_yday_owin) summary(kde_yday)
 
-```{r}
-kde_yday <- spattemp.density(
-  fire_yday_owin)
-summary(kde_yday)
-```
-
-```{r}
 plot(kde_yday)
-```

@@ -55,10 +55,5 @@ In terms of study period, students should focus on quarterly armed conflict even
 The `ACLED_Myanmar` dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the csv data and returns an **`sf`** object that can be used for further analysis.
 
 ```{r}
-acled_sf <- st_read("data/ACLED_Myanmar.csv") %>%
-  st_as_sf(coords = c(
-    "longitude", "latitude"),
-    crs=4326) %>%
-  st_transform(crs = 32647) %>%
-  mutate(event_date = dmy(event_date))
+
 ```
