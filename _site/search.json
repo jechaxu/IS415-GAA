@@ -1,9 +1,0 @@
-[
-  {
-    "objectID": "In-class_Ex/In-class_Ex03.html",
-    "href": "In-class_Ex/In-class_Ex03.html",
-    "title": "In-class_Ex03",
-    "section": "",
-    "text": "To obtain reproducible results for monte carlo simulation, use set.seed (can place it at the very top of the document to standardize throughout)\n\ninstall.packages(\"maptools\", repos = \"https://packagemanager.posit.co/cran/2023-10-13\")\n\n\npacman::p_load(sf, raster, spatstat, tmap, tidyverse, maptools, sp)\n\n\nacled_sf &lt;- st_read(\"data/ACLED_Myanmar.csv\") %&gt;%\n  st_as_sf(coords = c(\n    \"longitude\", \"latitude\"),\n    crs=4326) %&gt;%\n  st_transform(crs = 32647) %&gt;%\n  mutate(event_date = dmy(event_date))\n\nReading layer `ACLED_Myanmar' from data source \n  `C:\\jechaxu\\IS415-GAA\\In-class_Ex\\data\\ACLED_Myanmar.csv' using driver `CSV'\n\n\nWarning: no simple feature geometries present: returning a data.frame or tbl_df\n\n\n\ntmap_mode('plot')\n\ntmap mode set to plotting\n\nacled_sf %&gt;%\n  filter(year == 2023 |\n           event_type == \"Political Violence\") %&gt;%\n  tm_shape()+tm_dots()\n\n\n\n\n\n\n\ntmap_mode('plot')\n\ntmap mode set to plotting"
-  }
-]
