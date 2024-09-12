@@ -123,7 +123,7 @@ fire_month_owin <- fire_month_ppp[kbb_owin]
 summary(fire_month_owin)
 ```
 
-### Computing Spatio-Temporal KDE 
+### Computing Spatio-Temporal KDE
 
 ```{r}
 st_kde <- spattemp.density(fire_month_owin)

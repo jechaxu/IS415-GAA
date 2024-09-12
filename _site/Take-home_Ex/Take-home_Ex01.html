@@ -140,6 +140,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../Hands-on_Ex/Hands-on_Ex03.html">
  <span class="dropdown-text">Hands-on Exercise 3</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../Hands-on_Ex/Hands-on_Ex05.html">
+ <span class="dropdown-text">Hands-on Exercise 5</span></a>
+  </li>  
     </ul>
   </li>
   <li class="nav-item dropdown ">
@@ -230,7 +234,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">September 9, 2024</p>
+      <p class="date-modified">September 12, 2024</p>
     </div>
   </div>
     
@@ -257,7 +261,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><a href="https://www.tidyverse.org/"><code>tidyverse</code></a> : a collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structure.</p></li>
 <li><p><a href="https://cran.r-project.org/web/packages/raster/"><code>raster</code></a> : reads, writes, manipulates, analyses and model of gridded spatial data (i.e.&nbsp;raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.</p></li>
 <li><p><a href="https://cran.r-project.org/web/packages/tmap/"><code>tmap</code></a>: Packages used for creating static and interactive visualisations summary statistics and KDE layers.</p></li>
-<li><p><a href="https://spatstat.org/"><code>spatstat</code></a> : for spatial statistics with a strong focus on analysing spatial point patterns.</p></li>
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, st, tidyverse, raster, tmap, ggplot2, spatstat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -267,13 +270,45 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="importing-dataset-into-r-environment">3.0 Importing Dataset into R environment</h2>
 <section id="datasets" class="level3">
 <h3 class="anchored" data-anchor-id="datasets">3.1 Datasets</h3>
-<p>For the purpose of this assignment, <strong>armed conflict data</strong> of Myanmar between 2021-2024 from <a href="https://acleddata.com/">Armed Conflict Location &amp; Event Data (ACLED)</a>, an independent, impartial, international non-profit organization collecting data on violent conflict and protest in all countries and territories in the world, should be used.</p>
-<p>In terms of event types, students should focus on at least four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.</p>
-<p>In terms of study period, students should focus on quarterly armed conflict events from January 2021 until June 2024.</p>
+<p>For the purpose of this assignment, <strong>armed conflict data</strong> of Myanmar between January 2021 - June 2024 from <a href="https://acleddata.com/">Armed Conflict Location &amp; Event Data (ACLED)</a>. In terms of event types, we are focusing on four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.</p>
 </section>
 <section id="importing-the-myanmar-armed-conflict-dataset" class="level3">
 <h3 class="anchored" data-anchor-id="importing-the-myanmar-armed-conflict-dataset">3.2 Importing the Myanmar Armed Conflict Dataset</h3>
-<p>The <code>ACLED_Myanmar</code> dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the <strong><code>st_read()</code></strong> function of the <strong><code>sf</code></strong> package. This function reads the csv data and returns an <strong><code>sf</code></strong> object that can be used for further analysis.</p>
+<p>The dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the <strong><code>st_read()</code></strong> function of the <strong><code>sf</code></strong> package. This function reads the csv data and returns an <strong><code>sf</code></strong> object that can be used for further analysis.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>acled_sf <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/2021-01-01-2024-06-30-Myanmar.csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span><span class="fu">c</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">32647</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 42608 Columns: 31
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (20): event_id_cnty, event_date, disorder_type, event_type, sub_event_ty...
+dbl (11): year, time_precision, inter1, inter2, interaction, iso, latitude, ...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">'plot'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>()<span class="sc">+</span><span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
 </section>

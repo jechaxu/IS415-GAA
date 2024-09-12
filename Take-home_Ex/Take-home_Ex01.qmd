@@ -34,8 +34,6 @@ Before we start the exercise, we will need to import necessary R packages first.
 
 -   [`tmap`](https://cran.r-project.org/web/packages/tmap/): Packages used for creating static and interactive visualisations summary statistics and KDE layers.
 
--   [`spatstat`](https://spatstat.org/) : for spatial statistics with a strong focus on analysing spatial point patterns.
-
 ```{r}
 pacman::p_load(sf, st, tidyverse, raster, tmap, ggplot2, spatstat)
 ```
@@ -44,16 +42,25 @@ pacman::p_load(sf, st, tidyverse, raster, tmap, ggplot2, spatstat)
 
 ### 3.1 Datasets
 
-For the purpose of this assignment, **armed conflict data** of Myanmar between 2021-2024 from [Armed Conflict Location & Event Data (ACLED)](https://acleddata.com/), an independent, impartial, international non-profit organization collecting data on violent conflict and protest in all countries and territories in the world, should be used.
-
-In terms of event types, students should focus on at least four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.
-
-In terms of study period, students should focus on quarterly armed conflict events from January 2021 until June 2024.
+For the purpose of this assignment, **armed conflict data** of Myanmar between January 2021 - June 2024 from [Armed Conflict Location & Event Data (ACLED)](https://acleddata.com/). In terms of event types, we are focusing on four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.
 
 ### 3.2 Importing the Myanmar Armed Conflict Dataset
 
-The `ACLED_Myanmar` dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the csv data and returns an **`sf`** object that can be used for further analysis.
+The dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the csv data and returns an **`sf`** object that can be used for further analysis.
 
 ```{r}
+acled_sf <- read_csv("data/2021-01-01-2024-06-30-Myanmar.csv") %>%
+  st_as_sf(coords =c(
+    "longitude", "latitude"),
+           crs = 4326) %>%
+st_transform(crs = 32647)
+```
 
+```{r}
+tmap_mode('plot')
+```
+
+```{r}
+acled_sf %>%
+  tm_shape()+tm_dots()
 ```
