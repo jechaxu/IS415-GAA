@@ -1,0 +1,37 @@
+---
+title: "In class exercise 5"
+author: "Jenna Cheo"
+date: "9th September 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  eval: true
+  echo: true
+---
+
+# Getting Started
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr, GWmodel)
+```
+
+### Import shapefile into r environment
+
+```{r}
+hunan_sf <- st_read(dsn = "data",
+                 layer = "Hunan")
+```
+
+### Import csv file into r environment
+
+```{r}
+hunan2012 <- read_csv("data/Hunan_2012.csv")
+```
+
+### Performing relational join
+
+```{r}
+hunan <- left_join(hunan, hunan2012) %>%
+  dplyr::select(1:4, 7, 15)
+```

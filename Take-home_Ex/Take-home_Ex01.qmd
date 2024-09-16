@@ -34,33 +34,560 @@ Before we start the exercise, we will need to import necessary R packages first.
 
 -   [`tmap`](https://cran.r-project.org/web/packages/tmap/): Packages used for creating static and interactive visualisations summary statistics and KDE layers.
 
+-   `lubridate`: splits the data into quarters by their years.
+
 ```{r}
-pacman::p_load(sf, st, tidyverse, raster, tmap, ggplot2, spatstat)
+pacman::p_load(sf, st, tidyverse, raster, tmap, ggplot2, spatstat, lubridate)
 ```
 
 ## 3.0 Importing Dataset into R environment
 
 ### 3.1 Datasets
 
-For the purpose of this assignment, **armed conflict data** of Myanmar between January 2021 - June 2024 from [Armed Conflict Location & Event Data (ACLED)](https://acleddata.com/). In terms of event types, we are focusing on four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.
+1.  For the purpose of this assignment, **armed conflict data** of Myanmar between January 2021 - June 2024 from [Armed Conflict Location & Event Data (ACLED)](https://acleddata.com/). In terms of event types, we are focusing on four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.
+2.  We will also be using geospatial data on the Myanmar National Border in ESRI Shapefile format. [(Myanmar National Boundary MIMU v9.4)](http://geonode.themimu.info/layers/geonode%3Ammr_polbnda_adm0_250k_mimu_1)
 
-### 3.2 Importing the Myanmar Armed Conflict Dataset
+### 3.2 Importing the Datasets
+
+#### 3.2.1 Myanmar Armed Conflict Dataset
 
 The dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the **`st_read()`** function of the **`sf`** package. This function reads the csv data and returns an **`sf`** object that can be used for further analysis.
 
+The data has also been transformed such that the EPSG coordinates are accurate to Myanmar.
+
 ```{r}
 acled_sf <- read_csv("data/2021-01-01-2024-06-30-Myanmar.csv") %>%
+  st_as_sf(coords = c(
+    "longitude", "latitude"),
+    crs=4326) %>%
+  st_transform(crs = 32647) %>%
+  mutate(event_date = dmy(event_date))
+```
+
+The `event_date` column is categorized by
+
+```{r}
+acled_sf <- acled_sf %>%
+  mutate(quarter = quarter(event_date))
+```
+
+#### 3.2.2 Myanmar Administrative Boundary Data
+
+The code chunk below uses [`st_read()`](https://r-spatial.github.io/sf/reference/st_read.html) of **sf** package to import Myanmar shapefile into R. The imported shapefile will be **simple features** Object of **sf**.
+
+```{r}
+myanmar_sf <- st_read(dsn = "data/mmr_polbnda2_adm1_250k_mimu_1", 
+                 layer = "mmr_polbnda2_adm1_250k_mimu_1") %>%
   st_as_sf(coords =c(
     "longitude", "latitude"),
            crs = 4326) %>%
-st_transform(crs = 32647)
+  st_transform(crs = 32647)
 ```
+
+### 3.3 Mapping the geospatial data sets
+
+It is also useful for us to plot a map to show spatial patters.
 
 ```{r}
 tmap_mode('plot')
 ```
 
+The code chunk below plots the armed conflict data in Myanmar.
+
 ```{r}
 acled_sf %>%
   tm_shape()+tm_dots()
+```
+
+## 4.0 Geospatial Data Wrangling
+
+### 4.1 Separating the data by year and quarter
+
+The code chunk below separates the data provided into year and quarter for easier plotting.
+
+```{r}
+# year 2021
+acled_2021.Q1_sf <- acled_sf %>%
+  filter(year == '2021') %>%
+  filter(quarter == '1')
+
+acled_2021.Q2_sf <- acled_sf %>%
+  filter(year == '2021') %>%
+  filter(quarter == '2')
+
+acled_2021.Q3_sf <- acled_sf %>%
+  filter(year == '2021') %>%
+  filter(quarter == '3')
+
+acled_2021.Q4_sf <- acled_sf %>%
+  filter(year == '2021') %>%
+  filter(quarter == '4')
+
+# year 2022
+acled_2022.Q1_sf <- acled_sf %>%
+  filter(year == '2022') %>%
+  filter(quarter == '1')
+
+acled_2022.Q2_sf <- acled_sf %>%
+  filter(year == '2022') %>%
+  filter(quarter == '2')
+
+acled_2022.Q3_sf <- acled_sf %>%
+  filter(year == '2022') %>%
+  filter(quarter == '3')
+
+acled_2022.Q4_sf <- acled_sf %>%
+  filter(year == '2022') %>%
+  filter(quarter == '4')
+
+
+# year 2023
+acled_2023.Q1_sf <- acled_sf %>%
+  filter(year == '2023') %>%
+  filter(quarter == '1')
+
+acled_2023.Q2_sf <- acled_sf %>%
+  filter(year == '2023') %>%
+  filter(quarter == '2')
+
+acled_2023.Q3_sf <- acled_sf %>%
+  filter(year == '2023') %>%
+  filter(quarter == '3')
+
+acled_2023.Q4_sf <- acled_sf %>%
+  filter(year == '2023') %>%
+  filter(quarter == '4')
+
+
+# year 2024
+acled_2024.Q1_sf <- acled_sf %>%
+  filter(year == '2024') %>%
+  filter(quarter == '1')
+
+acled_2024.Q2_sf <- acled_sf %>%
+  filter(year == '2024') %>%
+  filter(quarter == '2')
+```
+
+### 4.1 Converting sf data frames to sp’s Spatial\* class
+
+The code chunk below uses [*as_Spatial()*](https://r4gdsa.netlify.app/chap04.html?q=KDE%20layers) of **sf** package to convert the geospatial data from simple feature data frame to sp’s Spatial\* class.
+
+```{r}
+# overall
+acled <- as_Spatial(acled_sf)
+
+# by quarters
+acled_2021.Q1 <- as_Spatial(acled_2021.Q1_sf)
+acled_2021.Q2 <- as_Spatial(acled_2021.Q2_sf)
+acled_2021.Q3 <- as_Spatial(acled_2021.Q3_sf)
+acled_2021.Q4 <- as_Spatial(acled_2021.Q4_sf)
+
+acled_2022.Q1 <- as_Spatial(acled_2022.Q1_sf)
+acled_2022.Q2 <- as_Spatial(acled_2022.Q2_sf)
+acled_2022.Q3 <- as_Spatial(acled_2022.Q3_sf)
+acled_2022.Q4 <- as_Spatial(acled_2022.Q4_sf)
+
+acled_2023.Q1 <- as_Spatial(acled_2023.Q1_sf)
+acled_2023.Q2 <- as_Spatial(acled_2023.Q2_sf)
+acled_2023.Q3 <- as_Spatial(acled_2023.Q3_sf)
+acled_2023.Q4 <- as_Spatial(acled_2023.Q4_sf)
+
+acled_2024.Q1 <- as_Spatial(acled_2024.Q1_sf)
+acled_2024.Q2 <- as_Spatial(acled_2024.Q2_sf)
+```
+
+```{r}
+acled_2021.Q1
+```
+
+### 4.2 Converting the simple features to **spatstat’s ppp (planar point pattern) object**
+
+**spatstat** requires the analytical data in ***ppp*** object form. Hence we will convert `sf` objects to `ppp` objects using [`as.ppp()`](https://rdrr.io/pkg/spatstat.geom/man/as.ppp.html) function by providing the point coordinates and the observation window.
+
+```{r}
+# overall
+acled_ppp <- as.ppp(st_coordinates(acled_sf), st_bbox(acled_sf))
+
+# by quarters
+acled_2021.Q1_ppp <- as.ppp(st_coordinates(acled_2021.Q1_sf), st_bbox(acled_2021.Q1_sf))
+acled_2021.Q2_ppp <- as.ppp(st_coordinates(acled_2021.Q2_sf), st_bbox(acled_2021.Q2_sf))
+acled_2021.Q3_ppp <- as.ppp(st_coordinates(acled_2021.Q3_sf), st_bbox(acled_2021.Q3_sf))
+acled_2021.Q4_ppp <- as.ppp(st_coordinates(acled_2021.Q4_sf), st_bbox(acled_2021.Q4_sf))
+
+acled_2022.Q1_ppp <- as.ppp(st_coordinates(acled_2022.Q1_sf), st_bbox(acled_2022.Q1_sf))
+acled_2022.Q2_ppp <- as.ppp(st_coordinates(acled_2022.Q2_sf), st_bbox(acled_2022.Q2_sf))
+acled_2022.Q3_ppp <- as.ppp(st_coordinates(acled_2022.Q3_sf), st_bbox(acled_2022.Q3_sf))
+acled_2022.Q4_ppp <- as.ppp(st_coordinates(acled_2022.Q4_sf), st_bbox(acled_2022.Q4_sf))
+
+acled_2023.Q1_ppp <- as.ppp(st_coordinates(acled_2023.Q1_sf), st_bbox(acled_2023.Q1_sf))
+acled_2023.Q2_ppp <- as.ppp(st_coordinates(acled_2023.Q2_sf), st_bbox(acled_2023.Q2_sf))
+acled_2023.Q3_ppp <- as.ppp(st_coordinates(acled_2023.Q3_sf), st_bbox(acled_2023.Q3_sf))
+acled_2023.Q4_ppp <- as.ppp(st_coordinates(acled_2023.Q4_sf), st_bbox(acled_2023.Q4_sf))
+
+acled_2024.Q1_ppp <- as.ppp(st_coordinates(acled_2024.Q1_sf), st_bbox(acled_2024.Q1_sf))
+acled_2024.Q2_ppp <- as.ppp(st_coordinates(acled_2024.Q2_sf), st_bbox(acled_2024.Q2_sf))
+
+plot(acled_2021.Q1_ppp)
+```
+
+Next, we will take a quick look at the summary statistics of the newly created ppp object.
+
+```{r}
+summary(acled_2021.Q1_ppp)
+```
+
+### 4.3 Handling duplicated points
+
+It is previously mentioned in `summary(acled_ppp)` that there are duplicated points in the patterns. We can double confirm the duplication in a ***ppp*** object by using the code chunk below.
+
+```{r}
+any(duplicated(acled_2021.Q1_ppp))
+```
+
+Since the above code chunk returns TRUE, we will use `sum()` and `multiplicity()` functions to see how many locations have more than one point event.
+
+```{r}
+sum(multiplicity(acled_2021.Q1_ppp) > 1)
+```
+
+We can address this by using `rjitter()` which will add a small perturbation to the duplicate points so that they do not occupy the exact same spaces.
+
+```{r}
+# overall
+acled_ppp_jit <- rjitter(acled_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+
+# by quarters
+acled_2021.Q1_ppp_jit <- rjitter(acled_2021.Q1_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2021.Q2_ppp_jit <- rjitter(acled_2021.Q2_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2021.Q3_ppp_jit <- rjitter(acled_2021.Q3_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2021.Q4_ppp_jit <- rjitter(acled_2021.Q4_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+
+acled_2022.Q1_ppp_jit <- rjitter(acled_2022.Q1_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2022.Q2_ppp_jit <- rjitter(acled_2022.Q2_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2022.Q3_ppp_jit <- rjitter(acled_2022.Q3_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2022.Q4_ppp_jit <- rjitter(acled_2022.Q4_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+
+acled_2023.Q1_ppp_jit <- rjitter(acled_2023.Q1_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2023.Q2_ppp_jit <- rjitter(acled_2023.Q2_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2023.Q3_ppp_jit <- rjitter(acled_2023.Q3_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2023.Q4_ppp_jit <- rjitter(acled_2023.Q4_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+
+acled_2024.Q1_ppp_jit <- rjitter(acled_2024.Q1_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+acled_2024.Q2_ppp_jit <- rjitter(acled_2024.Q2_ppp, 
+                             retry=TRUE, 
+                             nsim=1, 
+                             drop=TRUE)
+```
+
+Next, we will check if there is still any duplicate points in our dataset.
+
+```{r}
+any(duplicated(acled_2021.Q1_ppp_jit))
+```
+
+### 4.4 Creating ***owin*** object
+
+Since we have imported the Myanmar boundary, we will now convert the `myanmar_sf` object into an `owin` object.
+
+```{r}
+myanmar_owin <- as.owin(myanmar_sf)
+plot(myanmar_owin)
+```
+
+```{r}
+summary(myanmar_owin)
+```
+
+### 4.5 Creating point events objects in owin Object
+
+In this last step of geospatial data wrangling, we will extract armed conflict events that are located within Myanmar.
+
+```{r}
+# overall
+acledmyanmar_ppp = acled_ppp[myanmar_owin]
+
+# by quarters
+acledmyanmar_2021.Q1_ppp = acled_2021.Q1_ppp[myanmar_owin]
+acledmyanmar_2021.Q2_ppp = acled_2021.Q2_ppp[myanmar_owin]
+acledmyanmar_2021.Q3_ppp = acled_2021.Q3_ppp[myanmar_owin]
+acledmyanmar_2021.Q4_ppp = acled_2021.Q4_ppp[myanmar_owin]
+
+acledmyanmar_2022.Q1_ppp = acled_2022.Q1_ppp[myanmar_owin]
+acledmyanmar_2022.Q2_ppp = acled_2022.Q2_ppp[myanmar_owin]
+acledmyanmar_2022.Q3_ppp = acled_2022.Q3_ppp[myanmar_owin]
+acledmyanmar_2022.Q4_ppp = acled_2022.Q4_ppp[myanmar_owin]
+
+acledmyanmar_2023.Q1_ppp = acled_2023.Q1_ppp[myanmar_owin]
+acledmyanmar_2023.Q2_ppp = acled_2023.Q2_ppp[myanmar_owin]
+acledmyanmar_2023.Q3_ppp = acled_2023.Q3_ppp[myanmar_owin]
+acledmyanmar_2023.Q4_ppp = acled_2023.Q4_ppp[myanmar_owin]
+
+acledmyanmar_2024.Q1_ppp = acled_2024.Q1_ppp[myanmar_owin]
+acledmyanmar_2024.Q2_ppp = acled_2024.Q2_ppp[myanmar_owin]
+```
+
+The output object combines both the point and polygon feature in one `ppp` object class as shown below.
+
+```{r}
+summary(acledmyanmar_2021.Q1_ppp)
+```
+
+```{r}
+plot(acledmyanmar_2021.Q1_ppp)
+```
+
+## 5.0 First-order Spatial Point Patterns Analysis
+
+After data wrangling is complete, we will perform first-order spatial point pattern analysis using functions from the `spatstat` package.
+
+### 5.1 Kernel Density Estimation
+
+#### 5.1.1 Rescaling KDE Layers
+
+We will use `rescale()` function of **spatstat** package to covert the unit of measurement from meter to kilometer.
+
+```{r}
+# overall
+acledmyanmar_ppp.km <- rescale(acledmyanmar_ppp, 1000, "km")
+
+# by quarters
+acledmyanmar_2021.Q1_ppp.km <- rescale(acledmyanmar_2021.Q1_ppp, 1000, "km")
+acledmyanmar_2021.Q2_ppp.km <- rescale(acledmyanmar_2021.Q2_ppp, 1000, "km")
+acledmyanmar_2021.Q3_ppp.km <- rescale(acledmyanmar_2021.Q3_ppp, 1000, "km")
+acledmyanmar_2021.Q4_ppp.km <- rescale(acledmyanmar_2021.Q4_ppp, 1000, "km")
+
+acledmyanmar_2022.Q1_ppp.km <- rescale(acledmyanmar_2022.Q1_ppp, 1000, "km")
+acledmyanmar_2022.Q2_ppp.km <- rescale(acledmyanmar_2022.Q2_ppp, 1000, "km")
+acledmyanmar_2022.Q3_ppp.km <- rescale(acledmyanmar_2022.Q3_ppp, 1000, "km")
+acledmyanmar_2022.Q4_ppp.km <- rescale(acledmyanmar_2022.Q4_ppp, 1000, "km")
+
+acledmyanmar_2023.Q1_ppp.km <- rescale(acledmyanmar_2023.Q1_ppp, 1000, "km")
+acledmyanmar_2023.Q2_ppp.km <- rescale(acledmyanmar_2023.Q2_ppp, 1000, "km")
+acledmyanmar_2023.Q3_ppp.km <- rescale(acledmyanmar_2023.Q3_ppp, 1000, "km")
+acledmyanmar_2023.Q4_ppp.km <- rescale(acledmyanmar_2023.Q4_ppp, 1000, "km")
+
+acledmyanmar_2024.Q1_ppp.km <- rescale(acledmyanmar_2024.Q1_ppp, 1000, "km")
+acledmyanmar_2024.Q2_ppp.km <- rescale(acledmyanmar_2024.Q2_ppp, 1000, "km")
+```
+
+### 5.2 Quarterly KDE layers
+
+```{r}
+kde_acledmyanmar_2021.Q1.bw <- density(acledmyanmar_2021.Q1_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2021.Q2.bw <- density(acledmyanmar_2021.Q2_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2021.Q3.bw <- density(acledmyanmar_2021.Q3_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2021.Q4.bw <- density(acledmyanmar_2021.Q4_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+
+kde_acledmyanmar_2022.Q1.bw <- density(acledmyanmar_2022.Q1_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2022.Q2.bw <- density(acledmyanmar_2022.Q2_ppp.km, 
+                                      sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2022.Q3.bw <- density(acledmyanmar_2022.Q3_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2022.Q4.bw <- density(acledmyanmar_2022.Q4_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+
+kde_acledmyanmar_2023.Q1.bw <- density(acledmyanmar_2023.Q1_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2023.Q2.bw <- density(acledmyanmar_2023.Q2_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2023.Q3.bw <- density(acledmyanmar_2023.Q3_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2023.Q4.bw <- density(acledmyanmar_2023.Q4_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+
+kde_acledmyanmar_2024.Q1.bw <- density(acledmyanmar_2024.Q1_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+kde_acledmyanmar_2024.Q2.bw <- density(acledmyanmar_2024.Q2_ppp.km, 
+                                       sigma=20, 
+                                       edge=TRUE, 
+                                       kernel="gaussian")
+```
+
+```{r}
+plot(kde_acledmyanmar_2021.Q1.bw)
+plot(kde_acledmyanmar_2021.Q2.bw)
+plot(kde_acledmyanmar_2021.Q3.bw)
+plot(kde_acledmyanmar_2021.Q4.bw)
+
+plot(kde_acledmyanmar_2022.Q1.bw)
+plot(kde_acledmyanmar_2022.Q2.bw)
+plot(kde_acledmyanmar_2022.Q3.bw)
+plot(kde_acledmyanmar_2022.Q4.bw)
+
+plot(kde_acledmyanmar_2023.Q1.bw)
+plot(kde_acledmyanmar_2023.Q2.bw)
+plot(kde_acledmyanmar_2023.Q3.bw)
+plot(kde_acledmyanmar_2023.Q4.bw)
+
+plot(kde_acledmyanmar_2024.Q1.bw)
+plot(kde_acledmyanmar_2024.Q2.bw)
+```
+
+# 6.0 Second-order Spatial Point Patterns Analysis
+
+## 6.1 Data Wrangling for Second-order analysis
+
+#### 6.1.1 Extracting study areas
+
+The code chunk below targets the areas with the highest amount of activity.
+
+```{r}
+myanmar_sf
+```
+
+```{r}
+SGI <- myanmar_sf %>%
+  filter(ST == "Sagaing")
+KC <- myanmar_sf %>%
+  filter(ST == "Kachin")
+MW <- myanmar_sf %>%
+  filter(ST == "Magway")
+MDL <- myanmar_sf %>%
+  filter(ST == "Mandalay")
+```
+
+#### 6.1.2 Converting sf objects into ***owin*** objects
+
+Now, we will convert these sf objects into owin objects that is required by **spatstat**.
+
+```{r}
+SGI_owin <- as.owin(SGI)
+KC_owin <- as.owin(KC)
+MW_owin <- as.owin(MW)
+MDL_owin <- as.owin(MDL)
+```
+
+#### 6.1.3 Combining event points and the study area
+
+By using the code chunk below, we are able to extract events that is within specific regions to do our analysis later on.
+
+```{r}
+SGI_ppp = acled_ppp_jit[SGI_owin]
+KC_ppp = acled_ppp_jit[KC_owin]
+MW_ppp = acled_ppp_jit[MW_owin]
+MDL_ppp = acled_ppp_jit[MDL_owin]
+```
+
+`rescale()` is used to transform the unit of measurement from meters to kilometers.
+
+```{r}
+SGI_ppp.km = rescale(SGI_ppp, 1000, "km")
+KC_ppp.km = rescale(KC_ppp, 1000, "km")
+MW_ppp.km = rescale(MW_ppp, 1000, "km")
+MDL_ppp.km = rescale(MDL_ppp, 1000, "km")
+```
+
+The code chunk below plots the four study areas.
+
+```{r}
+par(mfrow=c(2,2))
+plot(SGI_ppp.km, main="Sagaing")
+plot(KC_ppp.km, main="Kachin")
+plot(MW_ppp.km, main="Magway")
+plot(MDL_ppp.km, main="Mandalay")
+```
+
+## 6.2 Analysing Spatial Point Process Using G-Function
+
+#### 6.2.1 Sagaing area
+
+The code chunk below is used to compute G-function using *Gest()* of **spatat** package.
+
+```{r}
+G_SGI = Gest(SGI_ppp, correction = "border")
+plot(G_SGI, xlim=c(0,500))
+```
+
+#### 6.1.2 Performing Complete Spatial Randomness Test
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+Ho = The distribution of events in Sagaing are randomly distributed.
+
+H1= The distribution of events in Sagaing are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+Monte Carlo test with G-function
+
+```{r}
+G_acledmyanmar.csr <- envelope(acledmyanmar_ppp, Gest, nsim = 999)
+```
+
+```{r}
+plot(G_acledmyanmar.csr)
 ```
