@@ -167,6 +167,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="dropdown-item" href="../In-class_Ex/In-class_Ex04.html">
  <span class="dropdown-text">In-class Exercise 4</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../In-class_Ex/In-class_Ex05.html">
+ <span class="dropdown-text">In-class Exercise 5</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-take-home-exercise" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Take-home Exercise</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-take-home-exercise">    
+        <li>
+    <a class="dropdown-item" href="../Take-home_Ex/Take-home_Ex01.html">
+ <span class="dropdown-text">Take-home Exercise 1</span></a>
+  </li>  
     </ul>
   </li>
 </ul>
@@ -200,8 +215,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#importing-dataset-into-r-environment" id="toc-importing-dataset-into-r-environment" class="nav-link" data-scroll-target="#importing-dataset-into-r-environment">3.0 Importing Dataset into R environment</a>
   <ul class="collapse">
   <li><a href="#datasets" id="toc-datasets" class="nav-link" data-scroll-target="#datasets">3.1 Datasets</a></li>
-  <li><a href="#importing-the-myanmar-armed-conflict-dataset" id="toc-importing-the-myanmar-armed-conflict-dataset" class="nav-link" data-scroll-target="#importing-the-myanmar-armed-conflict-dataset">3.2 Importing the Myanmar Armed Conflict Dataset</a></li>
+  <li><a href="#importing-the-datasets" id="toc-importing-the-datasets" class="nav-link" data-scroll-target="#importing-the-datasets">3.2 Importing the Datasets</a></li>
+  <li><a href="#mapping-the-geospatial-data-sets" id="toc-mapping-the-geospatial-data-sets" class="nav-link" data-scroll-target="#mapping-the-geospatial-data-sets">3.3 Mapping the geospatial data sets</a></li>
   </ul></li>
+  <li><a href="#geospatial-data-wrangling" id="toc-geospatial-data-wrangling" class="nav-link" data-scroll-target="#geospatial-data-wrangling">4.0 Geospatial Data Wrangling</a>
+  <ul class="collapse">
+  <li><a href="#separating-the-data-by-year-and-quarter" id="toc-separating-the-data-by-year-and-quarter" class="nav-link" data-scroll-target="#separating-the-data-by-year-and-quarter">4.1 Separating the data by year and quarter</a></li>
+  <li><a href="#converting-sf-data-frames-to-sps-spatial-class" id="toc-converting-sf-data-frames-to-sps-spatial-class" class="nav-link" data-scroll-target="#converting-sf-data-frames-to-sps-spatial-class">4.1 Converting sf data frames to sp’s Spatial* class</a></li>
+  <li><a href="#converting-the-simple-features-to-spatstats-ppp-planar-point-pattern-object" id="toc-converting-the-simple-features-to-spatstats-ppp-planar-point-pattern-object" class="nav-link" data-scroll-target="#converting-the-simple-features-to-spatstats-ppp-planar-point-pattern-object">4.2 Converting the simple features to <strong>spatstat’s ppp (planar point pattern) object</strong></a></li>
+  <li><a href="#handling-duplicated-points" id="toc-handling-duplicated-points" class="nav-link" data-scroll-target="#handling-duplicated-points">4.3 Handling duplicated points</a></li>
+  <li><a href="#creating-owin-object" id="toc-creating-owin-object" class="nav-link" data-scroll-target="#creating-owin-object">4.4 Creating <strong><em>owin</em></strong> object</a></li>
+  <li><a href="#creating-point-events-objects-in-owin-object" id="toc-creating-point-events-objects-in-owin-object" class="nav-link" data-scroll-target="#creating-point-events-objects-in-owin-object">4.5 Creating point events objects in owin Object</a></li>
+  </ul></li>
+  <li><a href="#first-order-spatial-point-patterns-analysis" id="toc-first-order-spatial-point-patterns-analysis" class="nav-link" data-scroll-target="#first-order-spatial-point-patterns-analysis">5.0 First-order Spatial Point Patterns Analysis</a>
+  <ul class="collapse">
+  <li><a href="#kernel-density-estimation" id="toc-kernel-density-estimation" class="nav-link" data-scroll-target="#kernel-density-estimation">5.1 Kernel Density Estimation</a></li>
+  <li><a href="#quarterly-kde-layers" id="toc-quarterly-kde-layers" class="nav-link" data-scroll-target="#quarterly-kde-layers">5.2 Quarterly KDE layers</a></li>
+  </ul></li>
+  <li><a href="#second-order-spatial-point-patterns-analysis" id="toc-second-order-spatial-point-patterns-analysis" class="nav-link" data-scroll-target="#second-order-spatial-point-patterns-analysis">6.0 Second-order Spatial Point Patterns Analysis</a>
+  <ul class="collapse">
+  <li><a href="#data-wrangling-for-second-order-analysis" id="toc-data-wrangling-for-second-order-analysis" class="nav-link" data-scroll-target="#data-wrangling-for-second-order-analysis">6.1 Data Wrangling for Second-order analysis</a></li>
+  <li><a href="#analysing-spatial-point-process-using-g-function" id="toc-analysing-spatial-point-process-using-g-function" class="nav-link" data-scroll-target="#analysing-spatial-point-process-using-g-function">6.2 Analysing Spatial Point Process Using G-Function</a></li>
+  </ul></li>
+  <li><a href="#computing-spatio-temporal-kde-by-quarter" id="toc-computing-spatio-temporal-kde-by-quarter" class="nav-link" data-scroll-target="#computing-spatio-temporal-kde-by-quarter">7.0 Computing Spatio-temporal KDE by quarter</a></li>
   </ul>
 </nav>
     </div>
@@ -234,7 +270,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">September 12, 2024</p>
+      <p class="date-modified">September 16, 2024</p>
     </div>
   </div>
     
@@ -261,57 +297,596 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><a href="https://www.tidyverse.org/"><code>tidyverse</code></a> : a collection of R packages designed for data science. All packages share an underlying design philosophy, grammar, and data structure.</p></li>
 <li><p><a href="https://cran.r-project.org/web/packages/raster/"><code>raster</code></a> : reads, writes, manipulates, analyses and model of gridded spatial data (i.e.&nbsp;raster). In this hands-on exercise, it will be used to convert image output generate by spatstat into raster format.</p></li>
 <li><p><a href="https://cran.r-project.org/web/packages/tmap/"><code>tmap</code></a>: Packages used for creating static and interactive visualisations summary statistics and KDE layers.</p></li>
+<li><p><code>lubridate</code>: splits the data into quarters by their years.</p></li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, st, tidyverse, raster, tmap, ggplot2, spatstat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, st, tidyverse, raster, tmap, ggplot2, spatstat, lubridate, sparr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="importing-dataset-into-r-environment" class="level2">
 <h2 class="anchored" data-anchor-id="importing-dataset-into-r-environment">3.0 Importing Dataset into R environment</h2>
 <section id="datasets" class="level3">
 <h3 class="anchored" data-anchor-id="datasets">3.1 Datasets</h3>
-<p>For the purpose of this assignment, <strong>armed conflict data</strong> of Myanmar between January 2021 - June 2024 from <a href="https://acleddata.com/">Armed Conflict Location &amp; Event Data (ACLED)</a>. In terms of event types, we are focusing on four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.</p>
+<ol type="1">
+<li>For the purpose of this assignment, <strong>armed conflict data</strong> of Myanmar between January 2021 - June 2024 from <a href="https://acleddata.com/">Armed Conflict Location &amp; Event Data (ACLED)</a>. In terms of event types, we are focusing on four main event types, namely: Battles, Explosion/Remote violence, Strategic developments, and Violence against civilians.</li>
+<li>We will also be using geospatial data on the Myanmar National Border in ESRI Shapefile format. <a href="http://geonode.themimu.info/layers/geonode%3Ammr_polbnda_adm0_250k_mimu_1">(Myanmar National Boundary MIMU v9.4)</a></li>
+</ol>
 </section>
-<section id="importing-the-myanmar-armed-conflict-dataset" class="level3">
-<h3 class="anchored" data-anchor-id="importing-the-myanmar-armed-conflict-dataset">3.2 Importing the Myanmar Armed Conflict Dataset</h3>
+<section id="importing-the-datasets" class="level3">
+<h3 class="anchored" data-anchor-id="importing-the-datasets">3.2 Importing the Datasets</h3>
+<section id="myanmar-armed-conflict-dataset" class="level4">
+<h4 class="anchored" data-anchor-id="myanmar-armed-conflict-dataset">3.2.1 Myanmar Armed Conflict Dataset</h4>
 <p>The dataset, which we downloaded from ACLED, is in csv format. To use this data in an R-environment, we need to import it as an sf object. We can do this using the <strong><code>st_read()</code></strong> function of the <strong><code>sf</code></strong> package. This function reads the csv data and returns an <strong><code>sf</code></strong> object that can be used for further analysis.</p>
+<p>The data has also been transformed such that the EPSG coordinates are accurate to Myanmar.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>acled_sf <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/2021-01-01-2024-06-30-Myanmar.csv"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span><span class="fu">c</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span> <span class="fu">c</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">32647</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Rows: 42608 Columns: 31
-── Column specification ────────────────────────────────────────────────────────
-Delimiter: ","
-chr (20): event_id_cnty, event_date, disorder_type, event_type, sub_event_ty...
-dbl (11): year, time_precision, inter1, inter2, interaction, iso, latitude, ...
-
-ℹ Use `spec()` to retrieve the full column specification for this data.
-ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs=</span><span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">32647</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">event_date =</span> <span class="fu">dmy</span>(event_date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</div>
+<p>The <code>event_date</code> column is categorized by</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">'plot'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>tmap mode set to plotting</code></pre>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>acled_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">quarter =</span> <span class="fu">quarter</span>(event_date))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="myanmar-administrative-boundary-data" class="level4">
+<h4 class="anchored" data-anchor-id="myanmar-administrative-boundary-data">3.2.2 Myanmar Administrative Boundary Data</h4>
+<p>The code chunk below uses <a href="https://r-spatial.github.io/sf/reference/st_read.html"><code>st_read()</code></a> of <strong>sf</strong> package to import Myanmar shapefile into R. The imported shapefile will be <strong>simple features</strong> Object of <strong>sf</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>myanmar_sf <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="at">dsn =</span> <span class="st">"data/mmr_polbnda2_adm1_250k_mimu_1"</span>, </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">layer =</span> <span class="st">"mmr_polbnda2_adm1_250k_mimu_1"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span><span class="fu">c</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="dv">32647</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+</section>
+<section id="mapping-the-geospatial-data-sets" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-the-geospatial-data-sets">3.3 Mapping the geospatial data sets</h3>
+<p>It is also useful for us to plot a map to show spatial patters.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">'plot'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The code chunk below plots the armed conflict data in Myanmar.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>acled_sf <span class="sc">%&gt;%</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_shape</span>()<span class="sc">+</span><span class="fu">tm_dots</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="Take-home_Ex01_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
 </div>
-</div>
-</div>
-
-
 </section>
+</section>
+<section id="geospatial-data-wrangling" class="level2">
+<h2 class="anchored" data-anchor-id="geospatial-data-wrangling">4.0 Geospatial Data Wrangling</h2>
+<section id="separating-the-data-by-year-and-quarter" class="level3">
+<h3 class="anchored" data-anchor-id="separating-the-data-by-year-and-quarter">4.1 Separating the data by year and quarter</h3>
+<p>The code chunk below separates the data provided into year and quarter for easier plotting.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># year 2021</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>acled_2021.Q1_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2021'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'1'</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>acled_2021.Q2_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2021'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'2'</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>acled_2021.Q3_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2021'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'3'</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>acled_2021.Q4_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2021'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'4'</span>)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="co"># year 2022</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>acled_2022.Q1_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2022'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'1'</span>)</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>acled_2022.Q2_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2022'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'2'</span>)</span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>acled_2022.Q3_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2022'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'3'</span>)</span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>acled_2022.Q4_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2022'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'4'</span>)</span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a><span class="co"># year 2023</span></span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>acled_2023.Q1_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2023'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'1'</span>)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>acled_2023.Q2_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2023'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'2'</span>)</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>acled_2023.Q3_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2023'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'3'</span>)</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>acled_2023.Q4_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2023'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'4'</span>)</span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a><span class="co"># year 2024</span></span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>acled_2024.Q1_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2024'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'1'</span>)</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a>acled_2024.Q2_sf <span class="ot">&lt;-</span> acled_sf <span class="sc">%&gt;%</span></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">==</span> <span class="st">'2024'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-61"><a href="#cb7-61" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(quarter <span class="sc">==</span> <span class="st">'2'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="converting-sf-data-frames-to-sps-spatial-class" class="level3">
+<h3 class="anchored" data-anchor-id="converting-sf-data-frames-to-sps-spatial-class">4.1 Converting sf data frames to sp’s Spatial* class</h3>
+<p>The code chunk below uses <a href="https://r4gdsa.netlify.app/chap04.html?q=KDE%20layers"><em>as_Spatial()</em></a> of <strong>sf</strong> package to convert the geospatial data from simple feature data frame to sp’s Spatial* class.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># overall</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>acled <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_sf)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># by quarters</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>acled_2021.Q1 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2021.Q1_sf)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>acled_2021.Q2 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2021.Q2_sf)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>acled_2021.Q3 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2021.Q3_sf)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>acled_2021.Q4 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2021.Q4_sf)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>acled_2022.Q1 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2022.Q1_sf)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>acled_2022.Q2 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2022.Q2_sf)</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>acled_2022.Q3 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2022.Q3_sf)</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>acled_2022.Q4 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2022.Q4_sf)</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>acled_2023.Q1 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2023.Q1_sf)</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>acled_2023.Q2 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2023.Q2_sf)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>acled_2023.Q3 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2023.Q3_sf)</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>acled_2023.Q4 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2023.Q4_sf)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>acled_2024.Q1 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2024.Q1_sf)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>acled_2024.Q2 <span class="ot">&lt;-</span> <span class="fu">as_Spatial</span>(acled_2024.Q2_sf)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>acled_2021.Q1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="converting-the-simple-features-to-spatstats-ppp-planar-point-pattern-object" class="level3">
+<h3 class="anchored" data-anchor-id="converting-the-simple-features-to-spatstats-ppp-planar-point-pattern-object">4.2 Converting the simple features to <strong>spatstat’s ppp (planar point pattern) object</strong></h3>
+<p><strong>spatstat</strong> requires the analytical data in <strong><em>ppp</em></strong> object form. Hence we will convert <code>sf</code> objects to <code>ppp</code> objects using <a href="https://rdrr.io/pkg/spatstat.geom/man/as.ppp.html"><code>as.ppp()</code></a> function by providing the point coordinates and the observation window.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># overall</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>acled_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_sf), <span class="fu">st_bbox</span>(acled_sf))</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># by quarters</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>acled_2021.Q1_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2021.Q1_sf), <span class="fu">st_bbox</span>(acled_2021.Q1_sf))</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>acled_2021.Q2_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2021.Q2_sf), <span class="fu">st_bbox</span>(acled_2021.Q2_sf))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>acled_2021.Q3_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2021.Q3_sf), <span class="fu">st_bbox</span>(acled_2021.Q3_sf))</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>acled_2021.Q4_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2021.Q4_sf), <span class="fu">st_bbox</span>(acled_2021.Q4_sf))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>acled_2022.Q1_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2022.Q1_sf), <span class="fu">st_bbox</span>(acled_2022.Q1_sf))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>acled_2022.Q2_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2022.Q2_sf), <span class="fu">st_bbox</span>(acled_2022.Q2_sf))</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>acled_2022.Q3_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2022.Q3_sf), <span class="fu">st_bbox</span>(acled_2022.Q3_sf))</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>acled_2022.Q4_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2022.Q4_sf), <span class="fu">st_bbox</span>(acled_2022.Q4_sf))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>acled_2023.Q1_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2023.Q1_sf), <span class="fu">st_bbox</span>(acled_2023.Q1_sf))</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>acled_2023.Q2_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2023.Q2_sf), <span class="fu">st_bbox</span>(acled_2023.Q2_sf))</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>acled_2023.Q3_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2023.Q3_sf), <span class="fu">st_bbox</span>(acled_2023.Q3_sf))</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>acled_2023.Q4_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2023.Q4_sf), <span class="fu">st_bbox</span>(acled_2023.Q4_sf))</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>acled_2024.Q1_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2024.Q1_sf), <span class="fu">st_bbox</span>(acled_2024.Q1_sf))</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>acled_2024.Q2_ppp <span class="ot">&lt;-</span> <span class="fu">as.ppp</span>(<span class="fu">st_coordinates</span>(acled_2024.Q2_sf), <span class="fu">st_bbox</span>(acled_2024.Q2_sf))</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acled_2021.Q1_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we will take a quick look at the summary statistics of the newly created ppp object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(acled_2021.Q1_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="handling-duplicated-points" class="level3">
+<h3 class="anchored" data-anchor-id="handling-duplicated-points">4.3 Handling duplicated points</h3>
+<p>It is previously mentioned in <code>summary(acled_ppp)</code> that there are duplicated points in the patterns. We can double confirm the duplication in a <strong><em>ppp</em></strong> object by using the code chunk below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">duplicated</span>(acled_2021.Q1_ppp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Since the above code chunk returns TRUE, we will use <code>sum()</code> and <code>multiplicity()</code> functions to see how many locations have more than one point event.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">multiplicity</span>(acled_2021.Q1_ppp) <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We can address this by using <code>rjitter()</code> which will add a small perturbation to the duplicate points so that they do not occupy the exact same spaces.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># overall</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>acled_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_ppp, </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co"># by quarters</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>acled_2021.Q1_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2021.Q1_ppp, </span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>acled_2021.Q2_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2021.Q2_ppp, </span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>acled_2021.Q3_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2021.Q3_ppp, </span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>acled_2021.Q4_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2021.Q4_ppp, </span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>acled_2022.Q1_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2022.Q1_ppp, </span>
+<span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-27"><a href="#cb14-27" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-28"><a href="#cb14-28" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-29"><a href="#cb14-29" aria-hidden="true" tabindex="-1"></a>acled_2022.Q2_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2022.Q2_ppp, </span>
+<span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-33"><a href="#cb14-33" aria-hidden="true" tabindex="-1"></a>acled_2022.Q3_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2022.Q3_ppp, </span>
+<span id="cb14-34"><a href="#cb14-34" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>acled_2022.Q4_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2022.Q4_ppp, </span>
+<span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-39"><a href="#cb14-39" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-40"><a href="#cb14-40" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-41"><a href="#cb14-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-42"><a href="#cb14-42" aria-hidden="true" tabindex="-1"></a>acled_2023.Q1_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2023.Q1_ppp, </span>
+<span id="cb14-43"><a href="#cb14-43" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-44"><a href="#cb14-44" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-45"><a href="#cb14-45" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-46"><a href="#cb14-46" aria-hidden="true" tabindex="-1"></a>acled_2023.Q2_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2023.Q2_ppp, </span>
+<span id="cb14-47"><a href="#cb14-47" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-48"><a href="#cb14-48" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-49"><a href="#cb14-49" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-50"><a href="#cb14-50" aria-hidden="true" tabindex="-1"></a>acled_2023.Q3_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2023.Q3_ppp, </span>
+<span id="cb14-51"><a href="#cb14-51" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-52"><a href="#cb14-52" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-53"><a href="#cb14-53" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-54"><a href="#cb14-54" aria-hidden="true" tabindex="-1"></a>acled_2023.Q4_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2023.Q4_ppp, </span>
+<span id="cb14-55"><a href="#cb14-55" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-56"><a href="#cb14-56" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-57"><a href="#cb14-57" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-58"><a href="#cb14-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-59"><a href="#cb14-59" aria-hidden="true" tabindex="-1"></a>acled_2024.Q1_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2024.Q1_ppp, </span>
+<span id="cb14-60"><a href="#cb14-60" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-61"><a href="#cb14-61" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-62"><a href="#cb14-62" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span>
+<span id="cb14-63"><a href="#cb14-63" aria-hidden="true" tabindex="-1"></a>acled_2024.Q2_ppp_jit <span class="ot">&lt;-</span> <span class="fu">rjitter</span>(acled_2024.Q2_ppp, </span>
+<span id="cb14-64"><a href="#cb14-64" aria-hidden="true" tabindex="-1"></a>                             <span class="at">retry=</span><span class="cn">TRUE</span>, </span>
+<span id="cb14-65"><a href="#cb14-65" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nsim=</span><span class="dv">1</span>, </span>
+<span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a>                             <span class="at">drop=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Next, we will check if there is still any duplicate points in our dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">any</span>(<span class="fu">duplicated</span>(acled_2021.Q1_ppp_jit))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-owin-object" class="level3">
+<h3 class="anchored" data-anchor-id="creating-owin-object">4.4 Creating <strong><em>owin</em></strong> object</h3>
+<p>Since we have imported the Myanmar boundary, we will now convert the <code>myanmar_sf</code> object into an <code>owin</code> object.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>myanmar_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(myanmar_sf)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(myanmar_owin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(myanmar_owin)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="creating-point-events-objects-in-owin-object" class="level3">
+<h3 class="anchored" data-anchor-id="creating-point-events-objects-in-owin-object">4.5 Creating point events objects in owin Object</h3>
+<p>In this last step of geospatial data wrangling, we will extract armed conflict events that are located within Myanmar.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># overall</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>acledmyanmar_ppp <span class="ot">=</span> acled_ppp[myanmar_owin]</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="co"># by quarters</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q1_ppp <span class="ot">=</span> acled_2021.Q1_ppp[myanmar_owin]</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q2_ppp <span class="ot">=</span> acled_2021.Q2_ppp[myanmar_owin]</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q3_ppp <span class="ot">=</span> acled_2021.Q3_ppp[myanmar_owin]</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q4_ppp <span class="ot">=</span> acled_2021.Q4_ppp[myanmar_owin]</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q1_ppp <span class="ot">=</span> acled_2022.Q1_ppp[myanmar_owin]</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q2_ppp <span class="ot">=</span> acled_2022.Q2_ppp[myanmar_owin]</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q3_ppp <span class="ot">=</span> acled_2022.Q3_ppp[myanmar_owin]</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q4_ppp <span class="ot">=</span> acled_2022.Q4_ppp[myanmar_owin]</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q1_ppp <span class="ot">=</span> acled_2023.Q1_ppp[myanmar_owin]</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q2_ppp <span class="ot">=</span> acled_2023.Q2_ppp[myanmar_owin]</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q3_ppp <span class="ot">=</span> acled_2023.Q3_ppp[myanmar_owin]</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q4_ppp <span class="ot">=</span> acled_2023.Q4_ppp[myanmar_owin]</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2024.Q1_ppp <span class="ot">=</span> acled_2024.Q1_ppp[myanmar_owin]</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2024.Q2_ppp <span class="ot">=</span> acled_2024.Q2_ppp[myanmar_owin]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The output object combines both the point and polygon feature in one <code>ppp</code> object class as shown below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(acledmyanmar_2021.Q1_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(acledmyanmar_2021.Q1_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="first-order-spatial-point-patterns-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="first-order-spatial-point-patterns-analysis">5.0 First-order Spatial Point Patterns Analysis</h2>
+<p>After data wrangling is complete, we will perform first-order spatial point pattern analysis using functions from the <code>spatstat</code> package.</p>
+<section id="kernel-density-estimation" class="level3">
+<h3 class="anchored" data-anchor-id="kernel-density-estimation">5.1 Kernel Density Estimation</h3>
+<section id="rescaling-kde-layers" class="level4">
+<h4 class="anchored" data-anchor-id="rescaling-kde-layers">5.1.1 Rescaling KDE Layers</h4>
+<p>We will use <code>rescale()</code> function of <strong>spatstat</strong> package to covert the unit of measurement from meter to kilometer.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># overall</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>acledmyanmar_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># by quarters</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q1_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2021.Q1_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q2_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2021.Q2_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q3_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2021.Q3_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q4_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2021.Q4_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q1_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2022.Q1_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q2_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2022.Q2_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q3_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2022.Q3_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2022.Q4_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2022.Q4_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q1_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2023.Q1_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q2_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2023.Q2_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q3_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2023.Q3_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2023.Q4_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2023.Q4_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2024.Q1_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2024.Q1_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2024.Q2_ppp.km <span class="ot">&lt;-</span> <span class="fu">rescale</span>(acledmyanmar_2024.Q2_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="quarterly-kde-layers" class="level3">
+<h3 class="anchored" data-anchor-id="quarterly-kde-layers">5.2 Quarterly KDE layers</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2021.Q1.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2021.Q1_ppp.km, </span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2021.Q2.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2021.Q2_ppp.km, </span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2021.Q3.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2021.Q3_ppp.km, </span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2021.Q4.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2021.Q4_ppp.km, </span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2022.Q1.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2022.Q1_ppp.km, </span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2022.Q2.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2022.Q2_ppp.km, </span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>                                      <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2022.Q3.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2022.Q3_ppp.km, </span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2022.Q4.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2022.Q4_ppp.km, </span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2023.Q1.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2023.Q1_ppp.km, </span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2023.Q2.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2023.Q2_ppp.km, </span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2023.Q3.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2023.Q3_ppp.km, </span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2023.Q4.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2023.Q4_ppp.km, </span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2024.Q1.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2024.Q1_ppp.km, </span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>kde_acledmyanmar_2024.Q2.bw <span class="ot">&lt;-</span> <span class="fu">density</span>(acledmyanmar_2024.Q2_ppp.km, </span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">sigma=</span><span class="dv">20</span>, </span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">edge=</span><span class="cn">TRUE</span>, </span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">kernel=</span><span class="st">"gaussian"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2021.Q1.bw)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2021.Q2.bw)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2021.Q3.bw)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2021.Q4.bw)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2022.Q1.bw)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2022.Q2.bw)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2022.Q3.bw)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2022.Q4.bw)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2023.Q1.bw)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2023.Q2.bw)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2023.Q3.bw)</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2023.Q4.bw)</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2024.Q1.bw)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(kde_acledmyanmar_2024.Q2.bw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="second-order-spatial-point-patterns-analysis" class="level1">
+<h1>6.0 Second-order Spatial Point Patterns Analysis</h1>
+<section id="data-wrangling-for-second-order-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="data-wrangling-for-second-order-analysis">6.1 Data Wrangling for Second-order analysis</h2>
+<section id="extracting-study-areas" class="level4">
+<h4 class="anchored" data-anchor-id="extracting-study-areas">6.1.1 Extracting study areas</h4>
+<p>The code chunk below targets the areas with the highest amount of activity.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>myanmar_sf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>SGI <span class="ot">&lt;-</span> myanmar_sf <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ST <span class="sc">==</span> <span class="st">"Sagaing"</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>KC <span class="ot">&lt;-</span> myanmar_sf <span class="sc">%&gt;%</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ST <span class="sc">==</span> <span class="st">"Kachin"</span>)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>MW <span class="ot">&lt;-</span> myanmar_sf <span class="sc">%&gt;%</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ST <span class="sc">==</span> <span class="st">"Magway"</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>MDL <span class="ot">&lt;-</span> myanmar_sf <span class="sc">%&gt;%</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ST <span class="sc">==</span> <span class="st">"Mandalay"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="converting-sf-objects-into-owin-objects" class="level4">
+<h4 class="anchored" data-anchor-id="converting-sf-objects-into-owin-objects">6.1.2 Converting sf objects into <strong><em>owin</em></strong> objects</h4>
+<p>Now, we will convert these sf objects into owin objects that is required by <strong>spatstat</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>SGI_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(SGI)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>KC_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(KC)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>MW_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(MW)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>MDL_owin <span class="ot">&lt;-</span> <span class="fu">as.owin</span>(MDL)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="combining-event-points-and-the-study-area" class="level4">
+<h4 class="anchored" data-anchor-id="combining-event-points-and-the-study-area">6.1.3 Combining event points and the study area</h4>
+<p>By using the code chunk below, we are able to extract events that is within specific regions to do our analysis later on.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>SGI_ppp <span class="ot">=</span> acled_ppp_jit[SGI_owin]</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>KC_ppp <span class="ot">=</span> acled_ppp_jit[KC_owin]</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>MW_ppp <span class="ot">=</span> acled_ppp_jit[MW_owin]</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>MDL_ppp <span class="ot">=</span> acled_ppp_jit[MDL_owin]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>rescale()</code> is used to transform the unit of measurement from meters to kilometers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>SGI_ppp.km <span class="ot">=</span> <span class="fu">rescale</span>(SGI_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>KC_ppp.km <span class="ot">=</span> <span class="fu">rescale</span>(KC_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>MW_ppp.km <span class="ot">=</span> <span class="fu">rescale</span>(MW_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>MDL_ppp.km <span class="ot">=</span> <span class="fu">rescale</span>(MDL_ppp, <span class="dv">1000</span>, <span class="st">"km"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The code chunk below plots the four study areas.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(SGI_ppp.km, <span class="at">main=</span><span class="st">"Sagaing"</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(KC_ppp.km, <span class="at">main=</span><span class="st">"Kachin"</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(MW_ppp.km, <span class="at">main=</span><span class="st">"Magway"</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(MDL_ppp.km, <span class="at">main=</span><span class="st">"Mandalay"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="analysing-spatial-point-process-using-g-function" class="level2">
+<h2 class="anchored" data-anchor-id="analysing-spatial-point-process-using-g-function">6.2 Analysing Spatial Point Process Using G-Function</h2>
+<section id="sagaing-area" class="level4">
+<h4 class="anchored" data-anchor-id="sagaing-area">6.2.1 Sagaing area</h4>
+<p>The code chunk below is used to compute G-function using <em>Gest()</em> of <strong>spatat</strong> package.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>G_SGI <span class="ot">=</span> <span class="fu">Gest</span>(SGI_ppp, <span class="at">correction =</span> <span class="st">"border"</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_SGI, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">500</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:</p>
+<ul>
+<li><p>Ho = The distribution of events in Sagaing are randomly distributed.</p></li>
+<li><p>H1= The distribution of events in Sagaing are not randomly distributed.</p></li>
+</ul>
+<p>The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.</p>
+<p>Monte Carlo test with G-function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>G_SGI.csr <span class="ot">&lt;-</span> <span class="fu">envelope</span>(SGI_ppp, Gest, <span class="at">nsim =</span> <span class="dv">999</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_SGI.csr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="kachin-area" class="level4">
+<h4 class="anchored" data-anchor-id="kachin-area">6.2.2 Kachin area</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>G_KC <span class="ot">=</span> <span class="fu">Gest</span>(KC_ppp, <span class="at">correction =</span> <span class="st">"border"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_KC, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">500</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:</p>
+<ul>
+<li><p>Ho = The distribution of events in Kachin are randomly distributed.</p></li>
+<li><p>H1= The distribution of events in Kachin are not randomly distributed.</p></li>
+</ul>
+<p>The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.</p>
+<p>Monte Carlo test with G-function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>G_KC.csr <span class="ot">&lt;-</span> <span class="fu">envelope</span>(KC_ppp, Gest, <span class="at">nsim =</span> <span class="dv">999</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_KC.csr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="magway-area" class="level4">
+<h4 class="anchored" data-anchor-id="magway-area">6.2.3 Magway area</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>G_MW <span class="ot">=</span> <span class="fu">Gest</span>(MW_ppp, <span class="at">correction =</span> <span class="st">"border"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_MW, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">500</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:</p>
+<ul>
+<li><p>Ho = The distribution of events in Magway are randomly distributed.</p></li>
+<li><p>H1= The distribution of events in Magway are not randomly distributed.</p></li>
+</ul>
+<p>The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.</p>
+<p>Monte Carlo test with G-function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>G_MW.csr <span class="ot">&lt;-</span> <span class="fu">envelope</span>(MW_ppp, Gest, <span class="at">nsim =</span> <span class="dv">999</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_MW.csr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="mandalay-area" class="level4">
+<h4 class="anchored" data-anchor-id="mandalay-area">6.2.4 Mandalay area</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>G_MDL <span class="ot">=</span> <span class="fu">Gest</span>(MDL_ppp, <span class="at">correction =</span> <span class="st">"border"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_MDL, <span class="at">xlim=</span><span class="fu">c</span>(<span class="dv">0</span>,<span class="dv">500</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:</p>
+<ul>
+<li><p>Ho = The distribution of events in Mandalay are randomly distributed.</p></li>
+<li><p>H1= The distribution of events in Mandalay are not randomly distributed.</p></li>
+</ul>
+<p>The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.</p>
+<p>Monte Carlo test with G-function:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>G_MDL.csr <span class="ot">&lt;-</span> <span class="fu">envelope</span>(MDL_ppp, Gest, <span class="at">nsim =</span> <span class="dv">999</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(G_MDL.csr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="computing-spatio-temporal-kde-by-quarter" class="level1">
+<h1>7.0 Computing Spatio-temporal KDE by quarter</h1>
+<p><code>spattemp.density()</code> of sparr package is used to compute the STKDE.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>acledmyanmar_2021.Q1_kde <span class="ot">&lt;-</span> <span class="fu">spattemp.density</span>(acledmyanmar_2021.Q1_ppp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->

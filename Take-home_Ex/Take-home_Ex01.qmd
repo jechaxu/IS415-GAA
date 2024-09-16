@@ -6,8 +6,9 @@ date-modified: "last-modified"
 format: html
 editor: visual
 execute: 
-  eval: true
+  eval: false
   echo: true
+  freeze: true
 ---
 
 ## 1.0 Introduction
@@ -37,7 +38,7 @@ Before we start the exercise, we will need to import necessary R packages first.
 -   `lubridate`: splits the data into quarters by their years.
 
 ```{r}
-pacman::p_load(sf, st, tidyverse, raster, tmap, ggplot2, spatstat, lubridate)
+pacman::p_load(sf, st, tidyverse, raster, tmap, ggplot2, spatstat, lubridate, sparr)
 ```
 
 ## 3.0 Importing Dataset into R environment
@@ -572,22 +573,103 @@ G_SGI = Gest(SGI_ppp, correction = "border")
 plot(G_SGI, xlim=c(0,500))
 ```
 
-#### 6.1.2 Performing Complete Spatial Randomness Test
-
 To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
 
-Ho = The distribution of events in Sagaing are randomly distributed.
+-   Ho = The distribution of events in Sagaing are randomly distributed.
 
-H1= The distribution of events in Sagaing are not randomly distributed.
+-   H1= The distribution of events in Sagaing are not randomly distributed.
 
 The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
 
-Monte Carlo test with G-function
+Monte Carlo test with G-function:
 
 ```{r}
-G_acledmyanmar.csr <- envelope(acledmyanmar_ppp, Gest, nsim = 999)
+G_SGI.csr <- envelope(SGI_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
-plot(G_acledmyanmar.csr)
+plot(G_SGI.csr)
+```
+
+#### 6.2.2 Kachin area
+
+```{r}
+G_KC = Gest(KC_ppp, correction = "border")
+plot(G_KC, xlim=c(0,500))
+```
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   Ho = The distribution of events in Kachin are randomly distributed.
+
+-   H1= The distribution of events in Kachin are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+Monte Carlo test with G-function:
+
+```{r}
+G_KC.csr <- envelope(KC_ppp, Gest, nsim = 999)
+```
+
+```{r}
+plot(G_KC.csr)
+```
+
+#### 6.2.3 Magway area
+
+```{r}
+G_MW = Gest(MW_ppp, correction = "border")
+plot(G_MW, xlim=c(0,500))
+```
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   Ho = The distribution of events in Magway are randomly distributed.
+
+-   H1= The distribution of events in Magway are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+Monte Carlo test with G-function:
+
+```{r}
+G_MW.csr <- envelope(MW_ppp, Gest, nsim = 999)
+```
+
+```{r}
+plot(G_MW.csr)
+```
+
+#### 6.2.4 Mandalay area
+
+```{r}
+G_MDL = Gest(MDL_ppp, correction = "border")
+plot(G_MDL, xlim=c(0,500))
+```
+
+To confirm the observed spatial patterns above, a hypothesis test will be conducted. The hypothesis and test are as follows:
+
+-   Ho = The distribution of events in Mandalay are randomly distributed.
+
+-   H1= The distribution of events in Mandalay are not randomly distributed.
+
+The null hypothesis will be rejected if p-value is smaller than alpha value of 0.001.
+
+Monte Carlo test with G-function:
+
+```{r}
+G_MDL.csr <- envelope(MDL_ppp, Gest, nsim = 999)
+```
+
+```{r}
+plot(G_MDL.csr)
+```
+
+# 7.0 Computing Spatio-temporal KDE by quarter
+
+`spattemp.density()` of sparr package is used to compute the STKDE.
+
+```{r}
+acledmyanmar_2021.Q1_kde <- spattemp.density(acledmyanmar_2021.Q1_ppp)
 ```
