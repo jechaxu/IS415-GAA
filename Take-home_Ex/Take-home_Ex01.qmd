@@ -584,11 +584,11 @@ The null hypothesis will be rejected if p-value is smaller than alpha value of 0
 Monte Carlo test with G-function:
 
 ```{r}
-G_SGI.csr <- envelope(SGI_ppp, Gest, nsim = 999)
+# G_SGI.csr <- envelope(SGI_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
-plot(G_SGI.csr)
+# plot(G_SGI.csr)
 ```
 
 #### 6.2.2 Kachin area
@@ -609,11 +609,11 @@ The null hypothesis will be rejected if p-value is smaller than alpha value of 0
 Monte Carlo test with G-function:
 
 ```{r}
-G_KC.csr <- envelope(KC_ppp, Gest, nsim = 999)
+# G_KC.csr <- envelope(KC_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
-plot(G_KC.csr)
+# plot(G_KC.csr)
 ```
 
 #### 6.2.3 Magway area
@@ -634,11 +634,11 @@ The null hypothesis will be rejected if p-value is smaller than alpha value of 0
 Monte Carlo test with G-function:
 
 ```{r}
-G_MW.csr <- envelope(MW_ppp, Gest, nsim = 999)
+# G_MW.csr <- envelope(MW_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
-plot(G_MW.csr)
+# plot(G_MW.csr)
 ```
 
 #### 6.2.4 Mandalay area
@@ -659,17 +659,55 @@ The null hypothesis will be rejected if p-value is smaller than alpha value of 0
 Monte Carlo test with G-function:
 
 ```{r}
-G_MDL.csr <- envelope(MDL_ppp, Gest, nsim = 999)
+# G_MDL.csr <- envelope(MDL_ppp, Gest, nsim = 999)
 ```
 
 ```{r}
-plot(G_MDL.csr)
+# plot(G_MDL.csr)
 ```
 
-# 7.0 Computing Spatio-temporal KDE by quarter
+# 7.0 Computing Spatio-temporal KDE
+
+The code chunk below is used to convert data type of *event_date* to numeric.
+
+```{r}
+acled_sf_mutated <- acled_sf %>% 
+  mutate(DayofYear = yday(event_date)) %>%
+  mutate(Month_num = month(event_date)) %>%
+  mutate(Month_fac = month(event_date, 
+                           label = TRUE, 
+                           abbr = FALSE)) %>%
+  mutate(Quarter_label = paste(year(event_date), "Q", quarter(event_date), sep = ""))
+```
+
+```{r}
+acled_quarter <- acled_sf_mutated %>% 
+  dplyr::select(Quarter_label)
+```
+
+```{r}
+acled_quarter_ppp <- as.ppp(acled_quarter)
+acled_quarter_ppp
+```
+
+```{r}
+summary(acled_quarter_ppp)
+```
+
+```{r}
+
+```
+
+```{r}
+any(duplicated(acled_quarter_ppp))
+```
 
 `spattemp.density()` of sparr package is used to compute the STKDE.
 
 ```{r}
 acledmyanmar_2021.Q1_kde <- spattemp.density(acledmyanmar_2021.Q1_ppp)
+```
+
+```{r}
+plot(acledmyanmar_2021.Q1_kde)
 ```
