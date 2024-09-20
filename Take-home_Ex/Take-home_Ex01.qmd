@@ -671,19 +671,17 @@ Monte Carlo test with G-function:
 The code chunk below is used to convert data type of *event_date* to numeric.
 
 ```{r}
-acled_sf_mutated <- acled_sf %>% 
-  mutate(DayofYear = yday(event_date)) %>%
-  mutate(Month_num = month(event_date)) %>%
-  mutate(Month_fac = month(event_date, 
-                           label = TRUE, 
-                           abbr = FALSE)) %>%
-  mutate(Quarter_label = paste(year(event_date), "Q", quarter(event_date), sep = ""))
+acled_sf_2021_mutated <- acled_sf %>% 
+  filter(year == 2021) %>%
+  mutate(Quarter_label = quarter(event_date))
 ```
 
 ```{r}
 acled_quarter <- acled_sf_mutated %>% 
   dplyr::select(Quarter_label)
 ```
+
+### 7.1.1 Creating ppp object
 
 ```{r}
 acled_quarter_ppp <- as.ppp(acled_quarter)
@@ -695,19 +693,36 @@ summary(acled_quarter_ppp)
 ```
 
 ```{r}
-
+acled_quarter_ppp <- rjitter(acled_quarter_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
 ```
 
 ```{r}
 any(duplicated(acled_quarter_ppp))
 ```
 
-`spattemp.density()` of sparr package is used to compute the STKDE.
+### 7.1.2 Including owin object
 
 ```{r}
-acledmyanmar_2021.Q1_kde <- spattemp.density(acledmyanmar_2021.Q1_ppp)
+acled_quarter_owin <- acled_quarter_ppp[myanmar_owin]
+summary(acled_quarter_owin)
 ```
 
 ```{r}
-plot(acledmyanmar_2021.Q1_kde)
+plot(acled_quarter_owin)
+```
+
+## 7.2 Computing spatio-temporal KDE by quarters
+
+`spattemp.density()` of sparr package is used to compute the STKDE.
+
+```{r}
+# acledmyanmar_kde <- spattemp.density(acled_quarter_owin)
+# summary(acledmyanmar_kde)
+```
+
+```{r}
+# plot(acledmyanmar_kde)
 ```
