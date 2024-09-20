@@ -674,44 +674,84 @@ The code chunk below is used to convert data type of *event_date* to numeric.
 acled_sf_2021_mutated <- acled_sf %>% 
   filter(year == 2021) %>%
   mutate(Quarter_label = quarter(event_date))
+
+acled_sf_2022_mutated <- acled_sf %>% 
+  filter(year == 2022) %>%
+  mutate(Quarter_label = quarter(event_date))
+
+acled_sf_2023_mutated <- acled_sf %>% 
+  filter(year == 2023) %>%
+  mutate(Quarter_label = quarter(event_date))
+
+acled_sf_2024_mutated <- acled_sf %>% 
+  filter(year == 2024) %>%
+  mutate(Quarter_label = quarter(event_date))
 ```
 
 ```{r}
-acled_quarter <- acled_sf_mutated %>% 
+acled_quarter_2021 <- acled_sf_2021_mutated %>% 
+  dplyr::select(Quarter_label)
+
+acled_quarter_2022 <- acled_sf_2022_mutated %>% 
+  dplyr::select(Quarter_label)
+
+acled_quarter_2023 <- acled_sf_2023_mutated %>% 
+  dplyr::select(Quarter_label)
+
+acled_quarter_2024 <- acled_sf_2024_mutated %>% 
   dplyr::select(Quarter_label)
 ```
 
 ### 7.1.1 Creating ppp object
 
 ```{r}
-acled_quarter_ppp <- as.ppp(acled_quarter)
-acled_quarter_ppp
+acled_quarter_2021_ppp <- as.ppp(acled_quarter_2021)
+acled_quarter_2022_ppp <- as.ppp(acled_quarter_2022)
+acled_quarter_2023_ppp <- as.ppp(acled_quarter_2023)
+acled_quarter_2024_ppp <- as.ppp(acled_quarter_2024)
 ```
 
 ```{r}
-summary(acled_quarter_ppp)
+summary(acled_quarter_2021_ppp)
+summary(acled_quarter_2022_ppp)
+summary(acled_quarter_2023_ppp)
+summary(acled_quarter_2024_ppp)
 ```
 
 ```{r}
-acled_quarter_ppp <- rjitter(acled_quarter_ppp, 
+acled_quarter_2021_ppp <- rjitter(acled_quarter_2021_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
+acled_quarter_2022_ppp <- rjitter(acled_quarter_2022_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
+acled_quarter_2023_ppp <- rjitter(acled_quarter_2023_ppp, 
+                                 retry=TRUE, 
+                                 nsim=1, 
+                                 drop=TRUE)
+acled_quarter_2024_ppp <- rjitter(acled_quarter_2024_ppp, 
                                  retry=TRUE, 
                                  nsim=1, 
                                  drop=TRUE)
 ```
 
 ```{r}
-any(duplicated(acled_quarter_ppp))
+any(duplicated(acled_quarter_2021_ppp))
 ```
 
 ### 7.1.2 Including owin object
 
 ```{r}
-acled_quarter_owin <- acled_quarter_ppp[myanmar_owin]
-summary(acled_quarter_owin)
+acled_quarter_2021_owin <- acled_quarter_2021_ppp[myanmar_owin]
+acled_quarter_2022_owin <- acled_quarter_2022_ppp[myanmar_owin]
+acled_quarter_2023_owin <- acled_quarter_2023_ppp[myanmar_owin]
+acled_quarter_2024_owin <- acled_quarter_2024_ppp[myanmar_owin]
 ```
 
 ```{r}
-plot(acled_quarter_owin)
+plot(acled_quarter_2021_owin)
 ```
 
 ## 7.2 Computing spatio-temporal KDE by quarters
@@ -719,10 +759,54 @@ plot(acled_quarter_owin)
 `spattemp.density()` of sparr package is used to compute the STKDE.
 
 ```{r}
-# acledmyanmar_kde <- spattemp.density(acled_quarter_owin)
-# summary(acledmyanmar_kde)
+acledmyanmar_2021_kde <- spattemp.density(acled_quarter_2021_owin)
+acledmyanmar_2022_kde <- spattemp.density(acled_quarter_2022_owin)
+acledmyanmar_2023_kde <- spattemp.density(acled_quarter_2023_owin)
+acledmyanmar_2024_kde <- spattemp.density(acled_quarter_2024_owin)
+```
+
+### 7.2.1 Plotting the spatio-temporal KDE object
+
+```{r}
+quarters <- c(1,2,3,4)
+par(mfcol=c(1,4))
+for(i in quarters){ 
+  plot(acledmyanmar_2021_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2021 Q",i))
+}
 ```
 
 ```{r}
-# plot(acledmyanmar_kde)
+par(mfcol=c(1,4))
+for(i in quarters){ 
+  plot(acledmyanmar_2022_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2022 Q",i))
+}
 ```
+
+```{r}
+par(mfcol=c(1,4))
+for(i in quarters){ 
+  plot(acledmyanmar_2023_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2023 Q",i))
+}
+```
+
+```{r}
+quarters <- c(1,2)
+par(mfcol=c(1,2))
+for(i in quarters){ 
+  plot(acledmyanmar_2024_kde, i, 
+       override.par=FALSE, 
+       fix.range=TRUE, 
+       main=paste("KDE at 2024 Q",i))
+}
+```
+
+# 8.0 2nd-Order Spatio-Temporal Point Patterns Analysis
