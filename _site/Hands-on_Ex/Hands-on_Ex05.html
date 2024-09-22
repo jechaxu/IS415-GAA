@@ -311,7 +311,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">September 16, 2024</p>
+      <p class="date-modified">Invalid Date</p>
     </div>
   </div>
     
@@ -364,7 +364,7 @@ dbl (27): avg_wage, deposite, FAI, Gov_Rev, Gov_Exp, GDP, GDPPC, GIO, Loan, ...
 <h3 class="anchored" data-anchor-id="performing-relational-join">Performing relational join</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>hunan <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan,hunan2012)<span class="sc">%&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">7</span>, <span class="dv">15</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">7</span>, <span class="dv">15</span>, <span class="dv">16</span>, <span class="dv">31</span>, <span class="dv">32</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Joining with `by = join_by(County)`</code></pre>
 </div>
@@ -1435,18 +1435,18 @@ B 88 7744 8.786867 0.3776535 3.8137</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(hunan)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Simple feature collection with 6 features and 7 fields
+<pre><code>Simple feature collection with 6 features and 9 fields
 Geometry type: POLYGON
 Dimension:     XY
 Bounding box:  xmin: 110.4922 ymin: 28.61762 xmax: 112.3013 ymax: 30.12812
 Geodetic CRS:  WGS 84
-   NAME_2  ID_3  NAME_3   ENGTYPE_3  County GDPPC lag GDPPC
-1 Changde 21098 Anxiang      County Anxiang 23667  24847.20
-2 Changde 21100 Hanshou      County Hanshou 20981  22724.80
-3 Changde 21101  Jinshi County City  Jinshi 34592  24143.25
-4 Changde 21102      Li      County      Li 24473  27737.50
-5 Changde 21103   Linli      County   Linli 25554  27270.25
-6 Changde 21104  Shimen      County  Shimen 27137  21248.80
+   NAME_2  ID_3  NAME_3  County GDPPC     GIO    Agri Service lag GDPPC
+1 Changde 21098 Anxiang Anxiang 23667  5108.9 4524.41   14100  24847.20
+2 Changde 21100 Hanshou Hanshou 20981 13491.0 6545.35   17727  22724.80
+3 Changde 21101  Jinshi  Jinshi 34592 10935.0 2562.46    7525  24143.25
+4 Changde 21102      Li      Li 24473 18402.0 7562.34   53160  27737.50
+5 Changde 21103   Linli   Linli 25554  8214.0 3583.91    7031  27270.25
+6 Changde 21104  Shimen  Shimen 27137 17795.0 5266.51    6981  21248.80
                         geometry
 1 POLYGON ((112.0625 29.75523...
 2 POLYGON ((112.2288 29.11684...
