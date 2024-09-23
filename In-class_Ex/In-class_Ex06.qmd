@@ -1,0 +1,18 @@
+---
+title: "In Class Exercise 6"
+author: "Jenna Cheo"
+date: "September 23, 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: true
+  echo: true
+---
+
+# Getting Started
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr)
+```

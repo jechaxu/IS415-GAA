@@ -1,0 +1,15 @@
+{
+  "hash": "ebeeb984bba3cf71c8a7b14bbd2f4b0b",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"In Class Exercise 6\"\nauthor: \"Jenna Cheo\"\ndate: \"September 23, 2024\"\ndate-modified: \"last-modified\"\nformat: html\neditor: visual\nexecute: \n  freeze: true\n  eval: true\n  echo: true\n---\n\n\n# Getting Started\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, spdep, tmap, tidyverse, knitr)\n```\n:::\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
