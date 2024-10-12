@@ -1,0 +1,13 @@
+name: In-class_Ex_7
+title: In-class_Ex_7
+username: jennachx
+account: jennachx
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12867864
+bundleId: 9161216
+url: https://jennachx.shinyapps.io/In-class_Ex_7/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: app2.R|In-class_Ex07.qmd

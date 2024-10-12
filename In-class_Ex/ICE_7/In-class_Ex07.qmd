@@ -1,0 +1,12 @@
+---
+title: "In Class Exercise 7"
+author: "Jenna Cheo"
+date: "September 30, 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  echo: true
+---
+
+## 

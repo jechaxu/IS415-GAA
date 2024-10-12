@@ -1,6 +1,9 @@
 ---
 title: "Hands-on Exercise 1"
 author: "Jenna Cheo"
+
+execute:
+    freeze: true
 ---
 
 Getting Started

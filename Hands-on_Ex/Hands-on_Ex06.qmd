@@ -191,8 +191,7 @@ MI_corr <- sp.correlogram(wm_q,
 plot(MI_corr)
 ```
 
-By plotting the output might not allow us to provide complete interpretation. This is because not all autocorrelation values are statistically significant. Hence, it is important for us to examine the
-full analysis report by printing out the analysis results as in the code chunk below.
+By plotting the output might not allow us to provide complete interpretation. This is because not all autocorrelation values are statistically significant. Hence, it is important for us to examine the full analysis report by printing out the analysis results as in the code chunk below.
 
 ```{r}
 print(MI_corr)
