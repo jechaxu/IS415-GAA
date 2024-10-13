@@ -5,6 +5,9 @@ date: "October 9, 2024"
 date-modified: "last-modified"
 format: html
 editor: visual
+execute: 
+  freeze: true
+  eval: false
 ---
 
 # Geographical Segmentation with Spatially Constrained Clustering Techniques

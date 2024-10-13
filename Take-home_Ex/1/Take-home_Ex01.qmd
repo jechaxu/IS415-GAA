@@ -6,9 +6,8 @@ date-modified: "September 22, 2024"
 format: html
 editor: visual
 execute: 
-  echo: true
-  eval: false
   freeze: true
+  eval: false
 ---
 
 # 1.0 Introduction

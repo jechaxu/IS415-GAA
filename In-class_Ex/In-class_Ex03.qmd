@@ -6,8 +6,8 @@ date-modified: "last-modified"
 format: html
 editor: visual
 execute: 
-    eval: true
-    freeze: true
+  freeze: true
+  eval: false
 ---
 
 To obtain reproducible results for monte carlo simulation, use set.seed (can place it at the very top of the document to standardize throughout)

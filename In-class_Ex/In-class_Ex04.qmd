@@ -6,8 +6,8 @@ date-modified: "last-modified"
 format: html
 editor: visual
 execute: 
-    eval: true
-    freeze: true
+  freeze: true
+  eval: false
 ---
 
 ## Getting Started
