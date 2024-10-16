@@ -123,7 +123,7 @@ tm_shape(crime_district_malaysia) +
           style = "quantile", 
           palette = "Blues",
           title = "Crimes") +
-  tm_layout(main.title = "Distribution of crime in Malaysia",
+  tm_layout(main.title = "Distribution of crime in East Malaysia",
             main.title.position = "center",
             main.title.size = 1.2,
             legend.height = 0.45, 
@@ -152,3 +152,11 @@ wm_q <- crime_district_malaysia %>%
 ### 3.4.2 Moran’s I test
 
 The code chunk below performs Moran’s I statistical testing using [`moran.test()`](https://r-spatial.github.io/spdep/reference/moran.test.html) of **sfdep**.
+
+```{r}
+moranI <- global_moran(wm_q$crimes,
+                       wm_q$nb,
+                       wm_q$wt)
+
+glimpse(moranI)
+```
