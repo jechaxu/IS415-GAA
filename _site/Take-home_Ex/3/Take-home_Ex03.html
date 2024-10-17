@@ -275,6 +275,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#computing-contiguity-spatial-weights" id="toc-computing-contiguity-spatial-weights" class="nav-link" data-scroll-target="#computing-contiguity-spatial-weights">3.4.1 Computing Contiguity Spatial Weights</a></li>
   <li><a href="#morans-i-test" id="toc-morans-i-test" class="nav-link" data-scroll-target="#morans-i-test">3.4.2 Moran’s I test</a></li>
+  <li><a href="#monte-carlo-simulation" id="toc-monte-carlo-simulation" class="nav-link" data-scroll-target="#monte-carlo-simulation">3.4.3 Monte Carlo simulation</a></li>
+  </ul></li>
+  <li><a href="#local-measures-of-spatial-autocorrelation" id="toc-local-measures-of-spatial-autocorrelation" class="nav-link" data-scroll-target="#local-measures-of-spatial-autocorrelation">3.5 Local Measures of Spatial Autocorrelation</a>
+  <ul class="collapse">
+  <li><a href="#local-indicators-of-spatial-association-lisa" id="toc-local-indicators-of-spatial-association-lisa" class="nav-link" data-scroll-target="#local-indicators-of-spatial-association-lisa">3.5.1 Local Indicators of Spatial Association (LISA)</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -326,11 +331,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Main Panel (<code>mainPanel</code>)</strong>: This is the primary area of the application and it typically contains outputs. The main panel displays the output (like maps, plots, tables, etc.) based on the input given in the sidebar panel.</p></li>
 <li><p><strong>Header Panel (<code>headerPanel</code>)</strong>: This is the topmost part of the UI where you can place the title of our application. It is not always necessary but can be used to provide a title or brief description of our application.</p></li>
 </ul>
+<p>[[input ui stuff here]]</p>
 </section>
 <section id="importing-data-and-packages-into-r" class="level1">
 <h1>3. Importing data and packages into R</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep, dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="datasets-being-used" class="level2">
 <h2 class="anchored" data-anchor-id="datasets-being-used">3.1 Datasets being used</h2>
@@ -356,8 +362,8 @@ date (1): date
 </div>
 <p>Next, we import the administrative regions of Malaysia.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>malaysia_sf <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial/my_shp"</span>, </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">layer =</span> <span class="st">"my"</span>) <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>malaysia_sf <span class="ot">&lt;-</span> <span class="fu">read_sf</span>(<span class="at">dsn =</span> <span class="st">"data/geospatial/mys_adm_unhcr_20210211_shp"</span>, </span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">layer =</span> <span class="st">"mys_admbnda_adm1_unhcr_20210211"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">st_as_sf</span>(<span class="at">coords =</span><span class="fu">c</span>(</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">"longitude"</span>, <span class="st">"latitude"</span>),</span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>           <span class="at">crs =</span> <span class="dv">4326</span>) <span class="sc">%&gt;%</span></span>
@@ -366,17 +372,18 @@ date (1): date
 <p>However in this case study, for ease of analysis, we choose to focus on West Malaysia, and thus will be filtering out Sarawak, Sabah and Labuan.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>malaysia_sf <span class="ot">&lt;-</span> malaysia_sf <span class="sc">%&gt;%</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">'Sabah'</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">'Sarawak'</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(name <span class="sc">!=</span> <span class="st">'Labuan'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ADM1_EN <span class="sc">!=</span> <span class="st">'Sabah'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ADM1_EN <span class="sc">!=</span> <span class="st">'Sarawak'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(ADM1_EN <span class="sc">!=</span> <span class="st">'W.P. Labuan'</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">state =</span> <span class="fu">replace</span>(ADM1_EN, ADM1_EN <span class="sc">==</span> <span class="st">'W.P. Kuala Lumpur'</span>, <span class="st">'Kuala Lumpur'</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>malaysia_sf</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Simple feature collection with 13 features and 3 fields
+<pre><code>Simple feature collection with 13 features and 10 fields
 Geometry type: MULTIPOLYGON
 Dimension:     XY
-Bounding box:  xmin: 9213.943 ymin: 6984.585 xmax: 34801.1 ymax: 36915.7
+Bounding box:  xmin: 9189.014 ymin: 6951.581 xmax: 36220.34 ymax: 37014.28
 Projected CRS: Kertau (RSO) / RSO Malaya (ch)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -384,22 +391,24 @@ Projected CRS: Kertau (RSO) / RSO Malaya (ch)</code></pre>
 * `truncated`)'. Returning as a single symbolic unit()</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 13 × 4
-   id    name            source                                         geometry
- * &lt;chr&gt; &lt;chr&gt;           &lt;chr&gt;                                    &lt;MULTIPOLYGON&gt;
- 1 MY09  Perlis          https://simplemaps.com (((13243.37 35914.48, 13234 358…
- 2 MY02  Kedah           https://simplemaps.com (((12252.25 34456.09, 12253.05 …
- 3 MY03  Kelantan        https://simplemaps.com (((25139.25 32186.53, 25126.65 …
- 4 MY08  Perak           https://simplemaps.com (((13901.63 28257.42, 13942.83 …
- 5 MY07  Pulau Pinang    https://simplemaps.com (((13089.51 30650.82, 13091.34 …
- 6 MY10  Selangor        https://simplemaps.com (((15731.12 21151.12, 15731.84 …
- 7 MY05  Negeri Sembilan https://simplemaps.com (((20577.04 14282.29, 20577.1 1…
- 8 MY04  Melaka          https://simplemaps.com (((22052.41 13155.02, 22053.93 …
- 9 MY01  Johor           https://simplemaps.com (((25430.04 13316.77, 25445.66 …
-10 MY06  Pahang          https://simplemaps.com (((18716.85 25373.75, 18937.27 …
-11 MY11  Terengganu      https://simplemaps.com (((25785.88 26213.92, 25817.33 …
-12 MY14  Kuala Lumpur    https://simplemaps.com (((20558.2 17637.01, 20597.63 1…
-13 MY16  Putrajaya       https://simplemaps.com (((20360.89 15813.13, 20336.92 …</code></pre>
+<pre><code># A tibble: 13 × 11
+   ADM1_EN        ADM1_PCODE ADM0_EN ADM0_PCODE date       validOn    validTo   
+ * &lt;chr&gt;          &lt;chr&gt;      &lt;chr&gt;   &lt;chr&gt;      &lt;date&gt;     &lt;date&gt;     &lt;date&gt;    
+ 1 Johor          MY01       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 2 Kedah          MY02       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 3 Kelantan       MY03       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 4 Melaka         MY06       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 5 Negeri Sembil… MY07       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 6 Pahang         MY08       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 7 Perak          MY09       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 8 Perlis         MY10       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+ 9 Pulau Pinang   MY11       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+10 Selangor       MY17       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+11 Terengganu     MY15       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+12 W.P. Kuala Lu… MY04       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+13 W.P. Putrajaya MY16       Malays… MY         2020-12-02 2021-02-11 -001-11-30
+# ℹ 4 more variables: Shape_Leng &lt;dbl&gt;, Shape_Area &lt;dbl&gt;,
+#   geometry &lt;MULTIPOLYGON&gt;, state &lt;chr&gt;</code></pre>
 </div>
 </div>
 </section>
@@ -467,15 +476,15 @@ Projected CRS: Kertau (RSO) / RSO Malaya (ch)</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>crime_district_malaysia <span class="ot">&lt;-</span> malaysia_sf <span class="sc">%&gt;%</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(crime_district,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"name"</span> <span class="ot">=</span> <span class="st">"state"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">6</span><span class="sc">:</span><span class="dv">9</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"ADM1_EN"</span> <span class="ot">=</span> <span class="st">"state"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="dv">1</span>, <span class="dv">8</span><span class="sc">:</span><span class="dv">10</span>, <span class="dv">13</span><span class="sc">:</span><span class="dv">16</span>)</span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>crime_district_malaysia</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Simple feature collection with 1009 features and 5 fields
+<pre><code>Simple feature collection with 926 features and 7 fields
 Geometry type: MULTIPOLYGON
 Dimension:     XY
-Bounding box:  xmin: 9213.943 ymin: 6984.585 xmax: 34801.1 ymax: 36915.7
+Bounding box:  xmin: 9189.014 ymin: 6951.581 xmax: 36220.34 ymax: 37014.28
 Projected CRS: Kertau (RSO) / RSO Malaya (ch)</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -483,20 +492,21 @@ Projected CRS: Kertau (RSO) / RSO Malaya (ch)</code></pre>
 * `truncated`)'. Returning as a single symbolic unit()</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1,009 × 6
-   name                                geometry category type  date       crimes
-   &lt;chr&gt;                         &lt;MULTIPOLYGON&gt; &lt;chr&gt;    &lt;chr&gt; &lt;date&gt;      &lt;dbl&gt;
- 1 Perlis (((13243.37 35914.48, 13234 35834.73… assault  caus… 2016-01-01     52
- 2 Perlis (((13243.37 35914.48, 13234 35834.73… assault  caus… 2017-01-01     47
- 3 Perlis (((13243.37 35914.48, 13234 35834.73… assault  caus… 2018-01-01     45
- 4 Perlis (((13243.37 35914.48, 13234 35834.73… assault  caus… 2019-01-01     60
- 5 Perlis (((13243.37 35914.48, 13234 35834.73… assault  caus… 2020-01-01     40
- 6 Perlis (((13243.37 35914.48, 13234 35834.73… assault  caus… 2021-01-01     38
- 7 Perlis (((13243.37 35914.48, 13234 35834.73… assault  caus… 2022-01-01     33
- 8 Perlis (((13243.37 35914.48, 13234 35834.73… assault  murd… 2016-01-01      0
- 9 Perlis (((13243.37 35914.48, 13234 35834.73… assault  murd… 2017-01-01      2
-10 Perlis (((13243.37 35914.48, 13234 35834.73… assault  murd… 2018-01-01      1
-# ℹ 999 more rows</code></pre>
+<pre><code># A tibble: 926 × 8
+   ADM1_EN Shape_Leng Shape_Area                         geometry category type 
+   &lt;chr&gt;        &lt;dbl&gt;      &lt;dbl&gt;                   &lt;MULTIPOLYGON&gt; &lt;chr&gt;    &lt;chr&gt;
+ 1 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 2 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 3 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 4 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 5 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 6 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 7 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 8 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  murd…
+ 9 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  murd…
+10 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  murd…
+# ℹ 916 more rows
+# ℹ 2 more variables: date.y &lt;date&gt;, crimes &lt;dbl&gt;</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -560,25 +570,264 @@ PROJCRS["Kertau (RSO) / RSO Malaya (ch)",
 <section id="plotting-choropleth-map-of-distribution-of-crime" class="level2">
 <h2 class="anchored" data-anchor-id="plotting-choropleth-map-of-distribution-of-crime">3.3 Plotting choropleth map of distribution of crime</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(crime_district_malaysia) <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"crimes"</span>, </span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>, </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Blues"</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Crimes"</span>) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Distribution of crime in West Malaysia"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">1.2</span>,</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>, </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="global-measures-of-spatial-autocorrelation" class="level2">
+<h2 class="anchored" data-anchor-id="global-measures-of-spatial-autocorrelation">3.4 Global Measures of Spatial Autocorrelation</h2>
+<p>dataset has large set and takes forever to compute so im cutting it down to 2022 first.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>crime_district_malaysia_2022 <span class="ot">&lt;-</span> crime_district_malaysia <span class="sc">%&gt;%</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">filter</span>(date.y <span class="sc">==</span> <span class="st">'2022-01-01'</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>crime_district_malaysia_2022</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Simple feature collection with 132 features and 7 fields
+Geometry type: MULTIPOLYGON
+Dimension:     XY
+Bounding box:  xmin: 9189.014 ymin: 6951.581 xmax: 36220.34 ymax: 37014.28
+Projected CRS: Kertau (RSO) / RSO Malaya (ch)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 132 × 8
+   ADM1_EN Shape_Leng Shape_Area                         geometry category type 
+ * &lt;chr&gt;        &lt;dbl&gt;      &lt;dbl&gt;                   &lt;MULTIPOLYGON&gt; &lt;chr&gt;    &lt;chr&gt;
+ 1 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  caus…
+ 2 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  murd…
+ 3 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  rape 
+ 4 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  robb…
+ 5 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  robb…
+ 6 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  robb…
+ 7 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … assault  robb…
+ 8 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … property brea…
+ 9 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … property thef…
+10 Johor         10.5       1.56 (((29970.06 7179.322, 29968.88 … property thef…
+# ℹ 122 more rows
+# ℹ 2 more variables: date.y &lt;date&gt;, crimes &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<section id="computing-contiguity-spatial-weights" class="level3">
+<h3 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">3.4.1 Computing Contiguity Spatial Weights</h3>
+<p>We now generate the neighbours list.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>wm_q_2022 <span class="ot">&lt;-</span> crime_district_malaysia_2022 <span class="sc">%&gt;%</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nb =</span> <span class="fu">st_contiguity</span>(geometry))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>wm_q_2022 <span class="ot">&lt;-</span> wm_q_2022 <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">wt =</span> <span class="fu">st_weights</span>(nb,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                         <span class="at">style =</span> <span class="st">"W"</span>),</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="morans-i-test" class="level3">
+<h3 class="anchored" data-anchor-id="morans-i-test">3.4.2 Moran’s I test</h3>
+<p>The code chunk below performs Moran’s I statistical testing using <a href="https://r-spatial.github.io/spdep/reference/moran.test.html"><code>moran.test()</code></a> of <strong>sfdep</strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>moranI_2022 <span class="ot">&lt;-</span> <span class="fu">global_moran</span>(wm_q_2022<span class="sc">$</span>crimes,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>                       wm_q_2022<span class="sc">$</span>nb,</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>                       wm_q_2022<span class="sc">$</span>wt)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(moranI_2022)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 2
+ $ I: num 0.027
+ $ K: num 20.1</code></pre>
+</div>
+</div>
+<p>Performing Global Moran I’s test</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">global_moran_test</span>(wm_q_2022<span class="sc">$</span>crimes,</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>                 wm_q_2022<span class="sc">$</span>nb,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>                 wm_q_2022<span class="sc">$</span>wt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Moran I test under randomisation
+
+data:  x  
+weights: listw    
+
+Moran I statistic standard deviate = 2.5143, p-value = 0.005963
+alternative hypothesis: greater
+sample estimates:
+Moran I statistic       Expectation          Variance 
+     0.0270490932     -0.0076335878      0.0001902729 </code></pre>
+</div>
+</div>
+</section>
+<section id="monte-carlo-simulation" class="level3">
+<h3 class="anchored" data-anchor-id="monte-carlo-simulation">3.4.3 Monte Carlo simulation</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">global_moran_perm</span>(wm_q_2022<span class="sc">$</span>crimes,</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>                 wm_q_2022<span class="sc">$</span>nb,</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>                 wm_q_2022<span class="sc">$</span>wt,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">nsim =</span> <span class="dv">99</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Monte-Carlo simulation of Moran I
+
+data:  x 
+weights: listw  
+number of simulations + 1: 100 
+
+statistic = 0.027049, observed rank = 96, p-value = 0.08
+alternative hypothesis: two.sided</code></pre>
+</div>
+</div>
+<ul>
+<li><p><strong>Moran’s I Statistic:</strong> The Moran’s I statistic, a measure of spatial autocorrelation, was found to be significantly greater than zero, confirming the presence of clustering.</p>
+<p><strong>Statistical Significance:</strong> The p-value of 0.08, while not extremely low, provides sufficient statistical evidence to reject the null hypothesis of random spatial distribution, supporting the conclusion of clustering.</p></li>
+</ul>
+</section>
+</section>
+<section id="local-measures-of-spatial-autocorrelation" class="level2">
+<h2 class="anchored" data-anchor-id="local-measures-of-spatial-autocorrelation">3.5 Local Measures of Spatial Autocorrelation</h2>
+<section id="local-indicators-of-spatial-association-lisa" class="level3">
+<h3 class="anchored" data-anchor-id="local-indicators-of-spatial-association-lisa">3.5.1 Local Indicators of Spatial Association (LISA)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>lisa_2022 <span class="ot">&lt;-</span> wm_q_2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">local_moran =</span> <span class="fu">local_moran</span>(</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>    crimes, nb, wt, <span class="at">nsim =</span> <span class="dv">99</span>),</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(local_moran)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>tmap mode set to plotting</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(crime_district_malaysia) <span class="sc">+</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"crimes"</span>, </span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>, </span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Blues"</span>,</span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Crimes"</span>) <span class="sc">+</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Distribution of crime in Malaysia"</span>,</span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
-<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">1.2</span>,</span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>, </span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,</span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">frame =</span> <span class="cn">TRUE</span>) <span class="sc">+</span></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_compass</span>(<span class="at">type=</span><span class="st">"8star"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span><span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(lisa_2022) <span class="sc">+</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"ii"</span>) <span class="sc">+</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_view</span>(<span class="at">set.zoom.limits =</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">8</span>)) <span class="sc">+</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"local Moran's I of number of crimes"</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">0.8</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Variable(s) "ii" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex03_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>lisa_sig_2022 <span class="ot">&lt;-</span> lisa_2022  <span class="sc">%&gt;%</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(p_ii <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(lisa_2022) <span class="sc">+</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(lisa_sig_2022) <span class="sc">+</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"mean"</span>) <span class="sc">+</span> </span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()
+Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One tm layer group has duplicated layer types, which are omitted. To
+draw multiple layers of the same type, use multiple layer groups (i.e. specify
+tm_shape prior to each of them).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex03_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>wm_idw_2022 <span class="ot">&lt;-</span> wm_q_2022 <span class="sc">%&gt;%</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nb =</span> <span class="fu">include_self</span>(</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">st_contiguity</span>(geometry)),</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">wts =</span> <span class="fu">st_inverse_distance</span>(nb, </span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>                              geometry, </span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>                              <span class="at">scale =</span> <span class="dv">1</span>,</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>                              <span class="at">alpha =</span> <span class="dv">1</span>),</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>! Polygon provided. Using point on surface.</code></pre>
+</div>
+</div>
+<p>We will now compute the local Gi*.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>HCSA_2022 <span class="ot">&lt;-</span> wm_idw_2022 <span class="sc">%&gt;%</span> </span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">local_Gi =</span> <span class="fu">local_gstar_perm</span>(</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    crimes, nb, wts, <span class="at">nsim =</span> <span class="dv">99</span>),</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest</span>(local_Gi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>tmap functions are used to plot the local Gi* (i.e.&nbsp;gi_star) at the province level.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(HCSA_2022) <span class="sc">+</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"gi_star"</span>) <span class="sc">+</span> </span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_view</span>(<span class="at">set.zoom.limits =</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Variable(s) "gi_star" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex03_files/figure-html/unnamed-chunk-24-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<section id="p-value-of-hcsa" class="level4">
+<h4 class="anchored" data-anchor-id="p-value-of-hcsa">P-value of HCSA</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(HCSA_2022) <span class="sc">+</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"p_sim"</span>) <span class="sc">+</span> </span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
 * `truncated`)'. Returning as a single symbolic unit()</code></pre>
@@ -586,30 +835,98 @@ PROJCRS["Kertau (RSO) / RSO Malaya (ch)",
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Take-home_Ex03_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="Take-home_Ex03_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="global-measures-of-spatial-autocorrelation" class="level2">
-<h2 class="anchored" data-anchor-id="global-measures-of-spatial-autocorrelation">3.4 Global Measures of Spatial Autocorrelation</h2>
-<section id="computing-contiguity-spatial-weights" class="level3">
-<h3 class="anchored" data-anchor-id="computing-contiguity-spatial-weights">3.4.1 Computing Contiguity Spatial Weights</h3>
-<p>We now generate the neighbours list.</p>
+<section id="visualising-local-hcsa" class="level4">
+<h4 class="anchored" data-anchor-id="visualising-local-hcsa">Visualising local HCSA</h4>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>wm_q <span class="ot">&lt;-</span> crime_district_malaysia <span class="sc">%&gt;%</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">nb =</span> <span class="fu">st_contiguity</span>(geometry),</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>         <span class="at">wt =</span> <span class="fu">st_weights</span>(nb,</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>                         <span class="at">style =</span> <span class="st">"W"</span>),</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">.before=</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>map1 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(HCSA_2022) <span class="sc">+</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"gi_star"</span>) <span class="sc">+</span> </span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_view</span>(<span class="at">set.zoom.limits =</span> <span class="fu">c</span>(<span class="dv">6</span>,<span class="dv">8</span>)) <span class="sc">+</span></span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Gi* of GDPPC"</span>,</span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">0.8</span>)</span>
+<span id="cb58-7"><a href="#cb58-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-8"><a href="#cb58-8" aria-hidden="true" tabindex="-1"></a>map2 <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(HCSA_2022) <span class="sc">+</span></span>
+<span id="cb58-9"><a href="#cb58-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"p_value"</span>,</span>
+<span id="cb58-10"><a href="#cb58-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="dv">1</span>),</span>
+<span id="cb58-11"><a href="#cb58-11" aria-hidden="true" tabindex="-1"></a>              <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"0.001"</span>, <span class="st">"0.01"</span>, <span class="st">"0.05"</span>, <span class="st">"Not sig"</span>)) <span class="sc">+</span> </span>
+<span id="cb58-12"><a href="#cb58-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb58-13"><a href="#cb58-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"p-value of Gi*"</span>,</span>
+<span id="cb58-14"><a href="#cb58-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="fl">0.8</span>)</span>
+<span id="cb58-15"><a href="#cb58-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb58-16"><a href="#cb58-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(map1, map2, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Variable(s) "gi_star" contains positive and negative values, so midpoint is set to 0. Set midpoint = NA to show the full spectrum of the color palette.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex03_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
 </div>
 </section>
-<section id="morans-i-test" class="level3">
-<h3 class="anchored" data-anchor-id="morans-i-test">3.4.2 Moran’s I test</h3>
-<p>The code chunk below performs Moran’s I statistical testing using <a href="https://r-spatial.github.io/spdep/reference/moran.test.html"><code>moran.test()</code></a> of <strong>sfdep</strong>.</p>
+<section id="visualising-hot-spot-and-cold-spot-areas" class="level4">
+<h4 class="anchored" data-anchor-id="visualising-hot-spot-and-cold-spot-areas">Visualising hot spot and cold spot areas</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>tmap mode set to plotting</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>HCSA_sig_2022 <span class="ot">&lt;-</span> HCSA_2022  <span class="sc">%&gt;%</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(p_sim <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(HCSA_2022) <span class="sc">+</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>() <span class="sc">+</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(HCSA_sig_2022) <span class="sc">+</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"cluster"</span>) <span class="sc">+</span> </span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()
+Warning: Could not parse expression: '`British` * `chain` * (`Sears` * ^(1922)
+* `truncated`)'. Returning as a single symbolic unit()</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: One tm layer group has duplicated layer types, which are omitted. To
+draw multiple layers of the same type, use multiple layer groups (i.e. specify
+tm_shape prior to each of them).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Take-home_Ex03_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 
 
+</section>
 </section>
 </section>
 </section>

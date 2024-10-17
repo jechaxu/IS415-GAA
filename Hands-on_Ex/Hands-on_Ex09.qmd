@@ -331,11 +331,11 @@ The parallel coordinate plot above reveals that households in Cluster 4 township
 
 The `scale` argument of `ggparcoor()` provide several methods to scale the clustering variables.
 
--    std: univariately, subtract mean and divide by standard deviation.
+-   std: univariately, subtract mean and divide by standard deviation.
 
 -   robust: univariately, subtract median and divide by median absolute deviation.
 
--    uniminmax: univariately, scale so the minimum of the variable is zero, and the maximum is one.
+-   uniminmax: univariately, scale so the minimum of the variable is zero, and the maximum is one.
 
 -   globalminmax: no scaling is done; the range of the graphs is defined by the global minimum and the global maximum.
 

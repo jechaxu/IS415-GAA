@@ -24,7 +24,7 @@ When we’re building a Shiny application, we work with three main components **
 # 3. Importing data and packages into R
 
 ```{r}
-pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep, dplyr)
+pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep)
 ```
 
 ## 3.1 Datasets being used
@@ -44,8 +44,8 @@ crime_district <- read_csv("data/aspatial/crime_district.csv")
 Next, we import the administrative regions of Malaysia.
 
 ```{r}
-malaysia_sf <- read_sf(dsn = "data/geospatial/my_shp", 
-                 layer = "my") %>%
+malaysia_sf <- read_sf(dsn = "data/geospatial/mys_adm_unhcr_20210211_shp", 
+                 layer = "mys_admbnda_adm1_unhcr_20210211") %>%
   st_as_sf(coords =c(
     "longitude", "latitude"),
            crs = 4326) %>%
@@ -56,9 +56,10 @@ However in this case study, for ease of analysis, we choose to focus on West Mal
 
 ```{r}
 malaysia_sf <- malaysia_sf %>%
-  filter(name != 'Sabah') %>%
-  filter(name != 'Sarawak') %>%
-  filter(name != 'Labuan')
+  filter(ADM1_EN != 'Sabah') %>%
+  filter(ADM1_EN != 'Sarawak') %>%
+  filter(ADM1_EN != 'W.P. Labuan') %>%
+  mutate(state = replace(ADM1_EN, ADM1_EN == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))
 ```
 
 ```{r}
@@ -95,13 +96,13 @@ crime_district <- crime_district %>%
 crime_district
 ```
 
-### 3.2.3 Performing relational join 
+### 3.2.3 Performing relational join
 
 ```{r}
 crime_district_malaysia <- malaysia_sf %>%
   left_join(crime_district,
-            by = c("name" = "state")) %>%
-  dplyr::select(2, 4, 6:9)
+            by = c("ADM1_EN" = "state")) %>%
+  dplyr::select(1, 8:10, 13:16)
 
 crime_district_malaysia
 ```
@@ -117,13 +118,15 @@ print(st_crs(crime_district_malaysia_sf))
 ## 3.3 Plotting choropleth map of distribution of crime
 
 ```{r}
+#| eval: false
+
 tmap_mode("plot")
 tm_shape(crime_district_malaysia) +
   tm_fill("crimes", 
           style = "quantile", 
           palette = "Blues",
           title = "Crimes") +
-  tm_layout(main.title = "Distribution of crime in East Malaysia",
+  tm_layout(main.title = "Distribution of crime in West Malaysia",
             main.title.position = "center",
             main.title.size = 1.2,
             legend.height = 0.45, 
@@ -137,14 +140,27 @@ tm_shape(crime_district_malaysia) +
 
 ## 3.4 Global Measures of Spatial Autocorrelation
 
+dataset has large set and takes forever to compute so im cutting it down to 2022 first.
+
+```{r}
+crime_district_malaysia_2022 <- crime_district_malaysia %>%
+                  filter(date.y == '2022-01-01')
+
+crime_district_malaysia_2022
+```
+
 ### 3.4.1 Computing Contiguity Spatial Weights
 
 We now generate the neighbours list.
 
 ```{r}
-wm_q <- crime_district_malaysia %>%
-  mutate(nb = st_contiguity(geometry),
-         wt = st_weights(nb,
+wm_q_2022 <- crime_district_malaysia_2022 %>%
+  mutate(nb = st_contiguity(geometry))
+```
+
+```{r}
+wm_q_2022 <- wm_q_2022 %>%
+  mutate(wt = st_weights(nb,
                          style = "W"),
          .before=1)
 ```
@@ -154,9 +170,155 @@ wm_q <- crime_district_malaysia %>%
 The code chunk below performs Moran’s I statistical testing using [`moran.test()`](https://r-spatial.github.io/spdep/reference/moran.test.html) of **sfdep**.
 
 ```{r}
-moranI <- global_moran(wm_q$crimes,
-                       wm_q$nb,
-                       wm_q$wt)
+moranI_2022 <- global_moran(wm_q_2022$crimes,
+                       wm_q_2022$nb,
+                       wm_q_2022$wt)
 
-glimpse(moranI)
+glimpse(moranI_2022)
+```
+
+Performing Global Moran I's test
+
+```{r}
+global_moran_test(wm_q_2022$crimes,
+                 wm_q_2022$nb,
+                 wm_q_2022$wt)
+```
+
+### 3.4.3 Monte Carlo simulation
+
+```{r}
+global_moran_perm(wm_q_2022$crimes,
+                 wm_q_2022$nb,
+                 wm_q_2022$wt,
+                  nsim = 99)
+```
+
+-   **Moran's I Statistic:** The Moran's I statistic, a measure of spatial autocorrelation, was found to be significantly greater than zero, confirming the presence of clustering.
+
+    **Statistical Significance:** The p-value of 0.08, while not extremely low, provides sufficient statistical evidence to reject the null hypothesis of random spatial distribution, supporting the conclusion of clustering.
+
+## 3.5 Local Measures of Spatial Autocorrelation
+
+### 3.5.1 Local Indicators of Spatial Association (LISA)
+
+```{r}
+lisa_2022 <- wm_q_2022 %>% 
+  mutate(local_moran = local_moran(
+    crimes, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+tm_shape(lisa_2022) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "local Moran's I of number of crimes",
+            main.title.size = 0.8)
+```
+
+```{r}
+lisa_sig_2022 <- lisa_2022  %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+```
+
+```{r}
+tm_shape(lisa_2022) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig_2022) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+```{r}
+wm_idw_2022 <- wm_q_2022 %>%
+  mutate(nb = include_self(
+    st_contiguity(geometry)),
+    wts = st_inverse_distance(nb, 
+                              geometry, 
+                              scale = 1,
+                              alpha = 1),
+         .before = 1)
+```
+
+We will now compute the local Gi\*.
+
+```{r}
+HCSA_2022 <- wm_idw_2022 %>% 
+  mutate(local_Gi = local_gstar_perm(
+    crimes, nb, wts, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi)
+```
+
+tmap functions are used to plot the local Gi\* (i.e. gi_star) at the province level.
+
+```{r}
+tmap_mode("plot")
+tm_shape(HCSA_2022) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+#### P-value of HCSA
+
+```{r}
+tmap_mode("plot")
+tm_shape(HCSA_2022) +
+  tm_fill("p_sim") + 
+  tm_borders(alpha = 0.5)
+```
+
+#### Visualising local HCSA
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+map1 <- tm_shape(HCSA_2022) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Gi* of GDPPC",
+            main.title.size = 0.8)
+
+map2 <- tm_shape(HCSA_2022) +
+  tm_fill("p_value",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Gi*",
+            main.title.size = 0.8)
+
+tmap_arrange(map1, map2, ncol = 2)
+```
+
+#### Visualising hot spot and cold spot areas
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+HCSA_sig_2022 <- HCSA_2022  %>%
+  filter(p_sim < 0.05)
+```
+
+```{r}
+tm_shape(HCSA_2022) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(HCSA_sig_2022) +
+  tm_fill("cluster") + 
+  tm_borders(alpha = 0.4)
 ```
