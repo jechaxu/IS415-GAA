@@ -33,7 +33,7 @@ There are two datasets being used in this exercise.
 
 -   [Malaysia – Crime by District and Crime Type](https://data.gov.my/data-catalogue/crime_district) from data.gov.my in csv format.
 
--   [Malaysia GIS border data](https://simplemaps.com/gis/country/my) with included administrative regions in shapefile format.
+-   [Malaysia - Subnational Administrative Boundaries](https://data.humdata.org/dataset/cod-ab-mys) with included administrative regions in shapefile format.
 
 We first import the crime rate csv file into R.
 
