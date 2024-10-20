@@ -2,9 +2,11 @@
 title: "hands on exercise 9"
 author: "Jenna Cheo"
 date: "October 16, 2024"
-date-modified: "last-modified"
+date-modified: "October 19, 2024"
 format: html
 editor: visual
+execute: 
+  freeze: true
 ---
 
 # Geographical Segmentation with Spatially Constrained Clustering Techniques Pt 2
@@ -12,7 +14,7 @@ editor: visual
 ## Getting Started
 
 ```{r}
-pacman::p_load(BiocManager, rgdal, spdep, tmap, sf, ClustGeo, 
+pacman::p_load(BiocManager, spdep, tmap, sf, ClustGeo, 
                ggpubr, cluster, factoextra, NbClust,
                heatmaply, corrplot, psych, tidyverse, GGally)
 ```
@@ -28,14 +30,6 @@ shan_sf <- st_read(dsn = "data/geospatial",
 
 ```{r}
 shan_sf
-```
-
-```{r}
-cluster_vars <- shan_sf %>%
-  st_set_geometry(NULL) %>%
-  select("TS.x", "RADIO_PR", "TV_PR", "LLPHONE_PR", "MPHONE_PR", "COMPUTER_PR")
-
-head(cluster_vars,10)
 ```
 
 ```{r}
@@ -59,6 +53,21 @@ ict_derived <- ict %>%
          `COMPUTER`=`Computer`, `INTERNET`=`Internet at home`) 
 
 summary(ict_derived)
+```
+
+```{r}
+shan_sf <- left_join(shan_sf, 
+                     ict_derived, by=c("TS_PCODE"="TS_PCODE"))
+  
+write_rds(shan_sf, "data/rds/shan_sf.rds")
+```
+
+```{r}
+cluster_vars <- shan_sf %>%
+  st_set_geometry(NULL) %>%
+  select("TS.x", "RADIO_PR", "TV_PR", "LLPHONE_PR", "MPHONE_PR", "COMPUTER_PR")
+
+head(cluster_vars,10)
 ```
 
 ```{r}

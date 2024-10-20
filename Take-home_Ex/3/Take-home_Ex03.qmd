@@ -23,7 +23,7 @@ The results would be displayed in a map using Shiny App, and the initial propose
 
 To insert the user input specifications and controls, Shiny has functions like `sliderInput()`, `selectInput()`, `textInput()`, `numericInput()`, `checkboxInput()`, and `checkboxGroupInput()`.
 
-![Image taken from [Dr. Paula Moraga](https://www.paulamoraga.com/book-geospatial/sec-shiny.html)](images/Screenshot 2024-03-20 at 9.02.23 PM.png){width="551"}
+![Image taken from [Dr. Paula Moraga](https://www.paulamoraga.com/book-geospatial/sec-shiny.html)](images/Screenshot%202024-03-20%20at%209.02.23%20PM.png){width="551"}
 
 # 3. Importing data and packages into R
 
