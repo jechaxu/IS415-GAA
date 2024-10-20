@@ -9,17 +9,21 @@ modified-date: "last-modified"
 
 This study investigates the spatial distribution and evolution of crime in Malaysia over recent years. By employing advanced spatial analysis techniques, we aim to identify hotspots, coldspots, and emerging trends in crime patterns. Our analysis utilizes a comprehensive dataset of crime incidents, including location, type, and date of occurrence.
 
+The exercise will focus only on one page consisting of all portions that I am responsible for. This includes:
+
+-   Global Spatial Autocorrelation (Moran’s I)
+
+-   Local Spatial Autocorrelation (Local Moran’s I - LISA Map)
+
 # 2. UI
 
-When we’re building a Shiny application, we work with three main components **`headerPanel`**, **`sidebarPanel`**, and **`mainPanel`**. These are the building blocks for our app’s user-interface.
+The results would be displayed in a map using Shiny App, and the initial proposed layout is as followed:
 
--   **Sidebar Panel (`sidebarPanel`)**: This is a vertical panel on the side of the application. It is displayed with a distinct background color and typically contains input controls.
+![](images/clipboard-500690992.png)
 
--   **Main Panel (`mainPanel`)**: This is the primary area of the application and it typically contains outputs. The main panel displays the output (like maps, plots, tables, etc.) based on the input given in the sidebar panel.
+To insert the user input specifications and controls, Shiny has functions like `sliderInput()`, `selectInput()`, `textInput()`, `numericInput()`, `checkboxInput()`, and `checkboxGroupInput()`.
 
--   **Header Panel (`headerPanel`)**: This is the topmost part of the UI where you can place the title of our application. It is not always necessary but can be used to provide a title or brief description of our application.
-
-\[\[input ui stuff here\]\]
+![Image taken from [Dr. Paula Moraga](https://www.paulamoraga.com/book-geospatial/sec-shiny.html)](images/Screenshot 2024-03-20 at 9.02.23 PM.png){width="551"}
 
 # 3. Importing data and packages into R
 
@@ -92,8 +96,6 @@ Some of the province names are mismatched between the crime rate csv file and th
 ```{r}
 crime_district <- crime_district %>% 
                   mutate(state = replace(state, state == 'W.P. Kuala Lumpur', 'Kuala Lumpur'))
-
-crime_district
 ```
 
 ### 3.2.3 Performing relational join
@@ -111,8 +113,6 @@ crime_district_malaysia
 crime_district_malaysia_sf <- st_as_sf(crime_district_malaysia)
 
 st_crs(crime_district_malaysia_sf) <- st_crs(malaysia_sf)
-
-print(st_crs(crime_district_malaysia_sf))
 ```
 
 ## 3.3 Plotting choropleth map of distribution of crime
@@ -155,12 +155,8 @@ We now generate the neighbours list.
 
 ```{r}
 wm_q_2022 <- crime_district_malaysia_2022 %>%
-  mutate(nb = st_contiguity(geometry))
-```
-
-```{r}
-wm_q_2022 <- wm_q_2022 %>%
-  mutate(wt = st_weights(nb,
+  mutate(nb = st_contiguity(geometry),
+         wt = st_weights(nb,
                          style = "W"),
          .before=1)
 ```
@@ -259,7 +255,7 @@ HCSA_2022 <- wm_idw_2022 %>%
   unnest(local_Gi)
 ```
 
-tmap functions are used to plot the local Gi\* (i.e. gi_star) at the province level.
+tmap functions are used to plot the local Gi\* (i.e. gi_star).
 
 ```{r}
 tmap_mode("plot")
@@ -286,10 +282,10 @@ tmap_mode("plot")
 
 ```{r}
 map1 <- tm_shape(HCSA_2022) +
-  tm_fill("gi_star") + 
+  tm_fill("gi_star", palette = "-RdBu", style = "cont") +
   tm_borders(alpha = 0.5) +
   tm_view(set.zoom.limits = c(6,8)) +
-  tm_layout(main.title = "Gi* of GDPPC",
+  tm_layout(main.title = "Gi* of crimes",
             main.title.size = 0.8)
 
 map2 <- tm_shape(HCSA_2022) +
