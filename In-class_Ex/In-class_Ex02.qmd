@@ -1,0 +1,128 @@
+---
+title: "In Class Exercise 2: IS415-GAA"
+author: "Jenna Cheo"
+date: "August 26, 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: false
+---
+
+## Getting started
+
+The code chunk below will be used to install and load these packages in RStudio.
+
+```{r}
+pacman::p_load(sf, tidyverse)
+```
+
+### Importing the data sets into R
+
+Two data sets will be used in this in class exercise.
+
+-   GEOSPATIAL: Master Plan 2014 Subzone Boundary (Web) (i.e. `MP14_SUBZONE_WEB_PL`) in SHP and KML format \[ [data.gov.sg](https://data.gov.sg/) \]
+-   GEOSPATIAL: Master Plan 2019 Subzone Boundary (No Sea) in KML format.
+
+The code chunk below imports shapefile for MP14.
+
+```{r}
+mpsz14_shp <- st_read(dsn = "data/MasterPlan2014SubzoneBoundaryWebSHP", 
+                  layer = "MP14_SUBZONE_WEB_PL")
+```
+
+```{r}
+class(mpsz14_shp)
+```
+
+The original KML file provided by data.gov.sg was corrupted and thus was unable to be read using sf.
+
+To resolve this, we rewrite over the file. We also rename the file to a more readable file name.
+
+```{r}
+#| output: false
+st_write(mpsz14_shp,
+         "data/MP14_SUBZONE_WEB_PL.kml",
+          delete_dsn = TRUE)
+```
+
+The code chunk below imports KML file into R for MP14.
+
+```{r}
+#| eval: false
+mpsz14_kml <- st_read("data/MP14_SUBZONE_WEB_PL.kml")
+```
+
+The code chunks below imports MP19 in SHP and KML.
+
+```{r}
+mpsz19_shp <- st_read(dsn = "data/MPSZ-2019", 
+                  layer = "MPSZ-2019") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+mpsz19_kml <- st_read("data/MasterPlan2019SubzoneBoundaryNoSeaKML.kml")
+```
+
+```{r}
+preschool <- st_read("data/PreSchoolsLocation.kml") %>%
+  st_transform(crs = 3414)
+```
+
+```{r}
+st_crs(mpsz19_shp)
+```
+
+```{r}
+popdata <- read.csv("data/respopagesextod2023.csv")
+```
+
+### Data Processing
+
+```{r}
+popdata2023 <- popdata  %>%
+  group_by(PA, SZ, AG)  %>%
+  summarise(`POP`=sum(`Pop`))  %>%
+  ungroup()  %>%
+  pivot_wider(names_from = AG,
+              values_from = POP)
+  
+  colnames(popdata2023)
+```
+
+```{r}
+popdata2023 <- popdata2023 %>%
+  mutate(YOUNG = rowSums(.[3:6]) 
+         + rowSums(.[14])) %>%
+  mutate(`ECONOMY ACTIVE` = rowSums(.[7:13]) 
+         + rowSums(.[15]))%>%
+  mutate(`AGED`=rowSums(.[16:21])) %>%
+  mutate(`TOTAL`=rowSums(.[3:21])) %>%  
+  mutate(`DEPENDENCY` = (`YOUNG` + `AGED`)
+  /`ECONOMY ACTIVE`) %>%
+    select(`PA`, `SZ`, `YOUNG`, 
+         `ECONOMY ACTIVE`, `AGED`, 
+         `TOTAL`, `DEPENDENCY`)
+```
+
+change to all uppercase so a left join is possible
+
+```{r}
+popdata2023 <- popdata2023 %>%
+  mutate_at(.vars = vars(PA, SZ), 
+          .funs = list(toupper))
+```
+
+```{r}
+mpsz_pop2023 <- left_join(mpsz19_shp, popdata2023,
+                          by = c("SUBZONE_N" = "SZ"))
+```
+
+```{r}
+pop2023_mpsz <- left_join(popdata2023, mpsz19_shp, 
+                          by = c("SZ" = "SUBZONE_N"))
+```
+
+the difference between the left join code chunks is which one you are keeping – 'subzone_n' column or 'sz' column

@@ -1,0 +1,122 @@
+---
+title: "In class exercise 5"
+author: "Jenna Cheo"
+date: "16th September 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: false
+---
+
+# Getting Started
+
+```{r}
+pacman::p_load(sf, spdep, tmap, tidyverse, knitr, GWmodel)
+```
+
+### Import shapefile into r environment
+
+```{r}
+#| eval: false
+hunan <- st_read(dsn = "data",
+                 layer = "Hunan")
+```
+
+### Import csv file into r environment
+
+```{r}
+#| eval: false
+hunan2012 <- read_csv("data/Hunan_2012.csv")
+```
+
+### Performing relational join
+
+```{r}
+#| eval: false
+hunan_sf <- left_join(hunan, hunan2012)%>%
+  dplyr::select(1:3, 7, 15, 16, 31, 32)
+```
+
+```{r}
+#| eval: false
+write_rds(hunan_sf, "data/rds/hunan_sf.rds")
+```
+
+```{r}
+hunan_sf <- read_rds("data/rds/hunan_sf.rds")
+```
+
+```{r}
+hunan_sp <- hunan_sf %>%
+  as_Spatial()
+```
+
+Determine adaptive bandwidth
+
+```{r}
+bw_AIC <- bw.gwr(GDPPC ~ 1, 
+                 data = hunan_sp, 
+                 approach = "AIC", 
+                 adaptive = TRUE, 
+                 kernel = "bisquare", 
+                 longlat = T)
+```
+
+```{r}
+bw_AIC
+```
+
+Determine fixed bandwidth
+
+```{r}
+bw_CV <- bw.gwr(GDPPC ~ 1,
+                 data = hunan_sp,
+                 approach = 'CV',
+                 adaptive = FALSE,
+                 kernel = 'bisquare',
+                 longlat = T)
+```
+
+```{r}
+bw_CV
+```
+
+computing geographically weighted summary statistics
+
+```{r}
+gwstat <- gwss(data = hunan_sp,
+               vars = "GDPPC",
+               bw = bw_AIC,
+               kernel = 'bisquare',
+               adaptive = TRUE,
+               longlat = T)
+```
+
+```{r}
+# view(gwstat[["SDF"]]@data)
+```
+
+```{r}
+gwstat_df <- as.data.frame(gwstat$SDF)
+```
+
+```{r}
+hunan_gstat <- cbind(hunan_sf, gwstat_df)
+```
+
+```{r}
+tm_shape(hunan_gstat) +
+  tm_fill("GDPPC_LM",
+          n = 5,
+          style = "quantile") +
+  tm_borders(alpha = 0.5) + 
+  tm_layout(main.title = "Distribution of geographically weighted mean",
+            main.title.position = "center",
+            main.title.size = 2.0,
+            legend.text.size = 1.20,
+            legend.height = 1.50,
+            legend.width = 1.50,
+            frame = TRUE) 
+```

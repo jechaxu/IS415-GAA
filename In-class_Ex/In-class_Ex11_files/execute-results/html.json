@@ -1,0 +1,15 @@
+{
+  "hash": "183c5f5f376b996e3410199057c9cfa2",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"in class ex 11\"\nauthor: \"Jenna Cheo\"\ndate: \"November 3, 2024\"\ndate-modified: \"last-modified\"\nformat: html\neditor: visual\nexecute: \n  freeze: true\n  eval: false\n---\n\n\n\n## Getting Started\n\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf, tmap, tidyverse, httr, performance)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nfolder_path <- \"data\"\nfile_list <- list.files(path = folder_path,\n                        pattern = \"^realis.*\\\\.csv$\",\n                        full.names = TRUE)\n\nrealis_data <- file_list %>%\n  map_dfr(read_csv)\n\ncondo_resale <- realis_data %>%\n  mutate(`Sale Date` = dmy(`Sale Date`)) %>%\n  filter(`Type of Sale` == \"Resale\" &\n          `Property Type` == \"Condominium\")\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\npostcode <- unique(condo_resale$`Postal Code`)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nurl <- \"https://onemap.gov.sg/api/common/elastic/search\"\nfound <- data.frame()\nnot_found <- data.frame()\n\nfor (postcode in postcode) {\n  query <- list('searchVal'=postcode, 'returnGeom'='Y',\n                'getAddrDetails'='Y', 'pageNum' = '1')\n  res <- GET(url, query=query)\n  if ((content(res)$found) != 0) {\n    found <- rbind(found, data.frame(content(res))[4:13])\n  } else {\n     not_found = data.frame(postcode)\n     }\n}\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nfound <- found %>%\n  select(c(6:8)) %>%\n  rename(POSTAL = `results.POSTAL`,\n         XCOORD = `results.X`,\n         YCOORD = `results.Y`)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ncondo_resale_geocoded = left_join(\n  condo_resale, found,\n  by = c('Postal Code' = 'POSTAL')\n)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ncondo_resale_sf <- st_as_sf(condo_resale_geocoded,\n                            coords = c(\"XCOORD\",\n                                       \"YCOORD\"),\n                            crs = 3414)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\noverlapping_points <- condo_resale_sf %>%\n  mutate(overlap = lengths(st_equals(., .)) > 1)\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\ncondo_resale_sf <- condo_resale_sf %>%\n  st_jitter(amount = 2)\n```\n:::\n\n\n\ngeospatial points can overlap! remember to jitter if there are any duplicates/overlaps.",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

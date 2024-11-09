@@ -1,0 +1,42 @@
+---
+title: "In Class Exercise 1: IS415-GAA"
+author: "Jenna Cheo"
+date: "August 19, 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: false
+---
+
+```{r}
+pacman::p_load(sf, tidyverse)
+```
+
+edited 20 August: i used an absolute path instead of a relative path in this code chunk. I have replaced it.
+
+```{r}
+mpsz = st_read(dsn = "data/MPSZ-2019", 
+                  layer = "MPSZ-2019")
+```
+
+The column in the sf data.frame that contains the geometries is a list. We retrieve the geometry list-column using *st_geometry()* as shown in the code chunk below.
+
+```{r}
+st_geometry(mpsz)
+```
+
+```{r}
+glimpse(mpsz)
+```
+
+```{r}
+head(mpsz, n=5)  
+```
+
+Plotting the geospatial data
+
+```{r}
+plot(mpsz)
+```

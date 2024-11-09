@@ -1,0 +1,148 @@
+---
+title: "In-class_Ex04"
+author: "Jenna Cheo"
+date: "9th September 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: false
+---
+
+## Getting Started
+
+### Importing packages
+
+For the purpose of this study, 6 R packages will be used.
+
+They are sf, raster, spatstat, sparr, tmap, tidyverse.
+
+```{r}
+pacman::p_load(sf, st, tidyverse, raster, tmap, spatstat, sparr, dplyr)
+```
+
+### Importing Dataset
+
+The file is in ESRI shapefile format.
+
+```{r}
+#| eval: false
+kbb <- st_read(dsn="data/rawdata",
+               layer="Kepulauan_Bangka_Belitung")
+```
+
+Next, we import the forest fire data which is in CSV format.
+
+```{r}
+fire_sf <- read_csv("data/rawdata/forestfires.csv") %>%
+  st_as_sf(coords =c("longitude", "latitude"),
+           crs = 4326) %>%
+st_transform(crs = 32748)
+```
+
+```{r}
+fire_sf <- fire_sf %>%
+  mutate(DayofYear = yday(acq_date)) %>%
+  mutate(Month_num = month(acq_date)) %>%
+  mutate(Month_fac = month(acq_date,
+                           label = TRUE,
+                           abbr = FALSE))
+```
+
+## Data Wrangling
+
+if there are z entities, you most likely will have to drop it (it will cause issues to this exercise in this case)
+
+The revised code chunk is as shown below.
+
+```{r}
+kbb_sf <- st_read(dsn="data/rawdata",
+               layer="Kepulauan_Bangka_Belitung") %>%
+st_union() %>%
+  st_zm(drop = TRUE, what = "ZM") %>%
+  st_transform(crs = 32748)
+```
+
+### Converting OWIN
+
+```{r}
+kbb_owin <- as.owin(kbb_sf)
+kbb_owin
+```
+
+`class()` is used to confirm if the output is indeed an owin object
+
+```{r}
+class(kbb_owin)
+```
+
+## Overall Plot
+
+always polygon first, followed by dot then line
+
+```{r}
+tm_shape(kbb_sf) +
+  tm_polygons() +
+tm_shape(fire_sf) +
+  tm_dots()
+```
+
+```{r}
+tm_shape(kbb_sf) +
+  tm_polygons() +
+tm_shape(fire_sf) +
+  tm_dots(size = 0.1) +
+tm_facets(by = "Month_fac",
+          free.coords = FALSE,
+          drop.units = TRUE)
+```
+
+## Computing STKDE by month
+
+```{r}
+fire_month <- fire_sf %>%
+  dplyr::select(Month_num)
+```
+
+```{r}
+fire_month_ppp <- as.ppp(fire_month)
+fire_month_ppp
+```
+
+```{r}
+summary(fire_month_ppp)
+```
+
+```{r}
+any(duplicated(fire_month_ppp))
+```
+
+```{r}
+fire_month_owin <- fire_month_ppp[kbb_owin]
+summary(fire_month_owin)
+```
+
+### Computing Spatio-Temporal KDE
+
+```{r}
+st_kde <- spattemp.density(fire_month_owin)
+summary(st_kde)
+```
+
+```{r}
+tims <- c(7, 8, 9, 10, 11, 12)
+par(mfcol=c(2,3))
+for (i in tims){
+  plot(st_kde, i,
+       override.par = FALSE,
+       fix.range = TRUE,
+       main = paste("KDE at month", i))
+}
+```
+
+fire_yday_ppp \<- fire_sf %\>% select(DayofYear)
+
+kde_yday \<- spattemp.density( fire_yday_owin) summary(kde_yday)
+
+plot(kde_yday)

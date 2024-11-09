@@ -1,0 +1,790 @@
+---
+title: "Hands On Exercise 2"
+author: "Jenna Cheo"
+date: "26th September 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: false
+---
+
+# 1.0 Introduction
+
+Drug abuse is associated with significant negative health, financial and social consequences. Yet, illicit drug consumption remains highly prevalent and continues to be a growing problem worldwide.
+
+The geopolitics of Thailand which is near the [Golden Triangle](https://en.wikipedia.org/wiki/Golden_Triangle_(Southeast_Asia)) of Indochina, the largest drug production site in Asia, and the constant transportation infrastructure development made Thailand became market and transit routes for drug trafficking to the third countries.
+
+In Thailand, drug abuse is one of the major social issue. There are about 2.7 million youths using drugs in Thailand. Among youths aged between 15 and 19 years, there are about 300,000 who have needs for drug treatment. Most of Thai youths involved with drugs are vocational-school students, which nearly doubles in number compared to secondary-school students.
+
+# 2.0 Getting Started
+
+## 2.1 Loading packages into R
+
+```{r}
+pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep)
+```
+
+## 2.2 Importing the datasets
+
+For the purpose of this take-home exercise, two data sets shall be used, they are:
+
+-   [Thailand Drug Offenses \[2017-2022\]](https://www.kaggle.com/datasets/thaweewatboy/thailand-drug-offenses-2017-2022) at Kaggle.
+
+-   [Thailand - Subnational Administrative Boundaries](https://data.humdata.org/dataset/cod-ab-tha?) at HDX. You are required to use the province boundary data set.
+
+### 2.2.1 Importing Thailand Drug Offenses (csv file)
+
+The dataset, which we downloaded from Kaggle, is in csv format. The codes chunk below uses `read_csv()` function of **readr** package to import *the dataset* into R as a tibble data frame called *drug_offences*.
+
+The data has also been transformed such it only contains cases of drug use.
+
+```{r}
+drug_offences <- read_csv("data/thai_drug_offenses_2017_2022.csv")
+```
+
+### 2.2.2 Importing Thailand Subnational Administrative Boundaries (shp)
+
+```{r}
+thailand_sf <- read_sf(dsn = "data", 
+                 layer = "tha_admbnda_adm1_rtsd_20220121") %>%
+  st_as_sf(coords =c(
+    "longitude", "latitude"),
+           crs = 4326) %>%
+  st_transform(crs = 24047)
+```
+
+```{r}
+thailand_sf
+```
+
+## 2.3 Geospatial Data Wrangling
+
+### 2.3.1 Fixing province names
+
+There is a mismatch of the province names between the datasets we are importing. We resolve this by changing the names of provinces in the drug offenses dataset to align.
+
+-   Loburi -\> Lop Buri
+
+-   Buogkan -\> Bueng Kan
+
+```{r}
+drug_offences <- drug_offences %>% 
+                  mutate(province_en = replace(province_en, province_en == 'buogkan', 'Bueng Kan')) %>%
+                  mutate(province_en = replace(province_en, province_en == 'Loburi', 'Lop Buri'))
+drug_offences
+```
+
+### 2.3.2 Performing relational join
+
+The code chunk below will be used to update the attribute table of *thailand_sf*’s SpatialPolygonsDataFrame with the attribute fields of *drug_offenses* dataframe. This is performed by using *left_join()* of **dplyr** package.
+
+```{r}
+drug_offences_thailand <- thailand_sf %>%
+  left_join(drug_offences,
+            by = c("ADM1_EN" = "province_en",
+                  "ADM1_TH" = "province_th")) %>%
+  dplyr::select(1:2, 17:20)
+```
+
+```{r}
+drug_offences_thailand
+```
+
+```{r}
+drug_offences_thailand_sf <- st_as_sf(drug_offences_thailand)
+
+st_crs(drug_offences_thailand_sf) <- st_crs(thailand_sf)
+
+print(st_crs(drug_offences_thailand_sf))
+```
+
+### 2.3.3 Visualising Regional Development Indicator
+
+We prepare a basemap and a choropleth map showing the distribution of drug offences by using `qtm()` of **tmap** package.
+
+Due to the large size of the dataset, we split the drug offences occurrences by their fiscal year to make it more convenient to process.
+
+```{r}
+drug_offence_list <- split(drug_offences_thailand, drug_offences_thailand$fiscal_year)
+```
+
+In the chunk of code below, we create a list to store the plots for each of the drug offences occurring during their respective fiscal year.
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+plot_list <- list()
+
+# Loop through the list and create a plot for each year, storing them in plot_list
+for (year in names(drug_offence_list)) {
+  p <- tm_shape(drug_offence_list[[year]]) +
+      tm_fill("no_cases",
+              n = 5,
+              style = "quantile",
+              title = "Number of Cases") +
+      tm_borders(alpha = 0.5) +
+      tm_layout(main.title = paste("EQC", year),
+                legend.outside = TRUE,
+                legend.outside.position = "right")
+  
+  # Store the plot in the list
+  plot_list[[year]] <- p
+}
+```
+
+```{r}
+#| eval: false
+
+tmap_arrange(plotlist = plot_list, 
+             ncol = 2, 
+             nrow = 3)
+```
+
+It can be seen that drug offenses were most prevalent in 2017-2019, however tapered off in 2020. The most probable reason would likely due to Covid-19 resulting in the nationwide lockdown, which may hinder police reports and access to drugs from dealers.
+
+Cases were also much more prevalent in the Southern area of Thailand, in comparison to the Northen provinces.
+
+# 3.0 Drug Use Cases 2019
+
+## 3.1 Global Measures of Spatial Autocorrelation
+
+### 3.1.1 Computing Contiguity Spatial Weights
+
+We need to first construct a spatial weight of the study area, used to define the neighbourhood relationships between the provinces in Thailand.
+
+As the dataset we are working with takes a significant time to process due to its large size, we choose to analyse only one fiscal year for efficiency. In this case, we have taken 2019 as it is the most prevalent before 2020 occurred.
+
+```{r}
+drug_offence_list[[3]]
+```
+
+We then filter it such that we only address the drug use cases for now, to reduce the size of the dataset.
+
+```{r}
+drug_use_2019 <- drug_offence_list[[3]] %>%
+  filter(types_of_drug_offenses == "drug_use_cases")
+```
+
+We now generate the neighbours list.
+
+```{r}
+wm_q_druguse_2019 <- drug_use_2019 %>%
+  mutate(nb = st_contiguity(geometry))
+```
+
+The dataset has Phuket as a province with no neighbors. The code chunk below manually fills it in using Phuket's nearest neighbour.
+
+```{r}
+empty_index <- 67 
+nearest_index <- 68
+
+wm_q_druguse_2019$nb[[empty_index]] <- as.integer(nearest_index)
+```
+
+```{r}
+wm_q_druguse_2019 <- wm_q_druguse_2019 %>%
+  mutate(wt = st_weights(nb,
+                         style = "W"),
+         .before=1)
+```
+
+### 3.1.2 Moran’s I test
+
+The code chunk below performs Moran’s I statistical testing using [`moran.test()`](https://r-spatial.github.io/spdep/reference/moran.test.html) of **sfdep**.
+
+```{r}
+moranI_druguse_2019 <- global_moran(wm_q_druguse_2019$no_cases,
+                       wm_q_druguse_2019$nb,
+                       wm_q_druguse_2019$wt)
+
+glimpse(moranI_druguse_2019)
+```
+
+Performing Global Moran’s I test
+
+```{r}
+global_moran_test(wm_q_druguse_2019$no_cases,
+                  wm_q_druguse_2019$nb,
+                  wm_q_druguse_2019$wt)
+```
+
+### 3.1.3 Monte Carlo simulation
+
+Next, `global_moran_perm()` is used to perform Monte Carlo simulation.
+
+```{r}
+global_moran_perm(wm_q_druguse_2019$no_cases,
+                  wm_q_druguse_2019$nb,
+                  wm_q_druguse_2019$wt,
+                  nsim = 99)
+```
+
+The statistical report shows that the p-value is larger than alpha value of 0.05. Hence, we have enough statistical evidence to prove that spatial distribution of drug use cases are not independent from geographical reasons.
+
+Because the Moran's I statistics is greater than 0. We can infer that the spatial distribution shows sign of clustering.
+
+## 3.2 Local Measures of Spatial Autocorrelation
+
+### 3.2.1 Local Indicators of Spatial Association (LISA)
+
+```{r}
+lisa_druguse_2019 <- wm_q_druguse_2019 %>% 
+  mutate(local_moran = local_moran(
+    no_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+The output of `local_moran()` is a sf dataframe containing the following:
+
+-   *ii*: local moran statistic
+-   *eii*: expectation of local moran statistic
+-   *var_ii*: variance of local moran statistic
+-   *z_ii*: standard deviate of local moran statistic
+-   *skewness*: the output of e1071::skewness() for the permutation samples underlying the standard deviates
+-   *kurtosis*: For `localmoran_perm`, the output of e1071::kurtosis() for the permutation samples underlying the standard deviates.
+
+In this code chunk below, tmap functions are used prepare a choropleth map by using value in the *ii* field.
+
+```{r}
+#| eval: false
+
+tm_shape(lisa_druguse_2019) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "local Moran's I of number of drug cases",
+            main.title.size = 0.8)
+```
+
+In lisa sf data.frame, we can find three fields contain the LISA categories. They are *mean*, *median* and *pysal*. In general, classification in *mean* will be used as shown in the code chunk below.
+
+```{r}
+lisa_sig_druguse_2019 <- lisa_druguse_2019  %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+```
+
+```{r}
+tm_shape(lisa_druguse_2019) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig_druguse_2019) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+We will need to derive a spatial weight matrix before we can compute local Gi\* statistics
+
+```{r}
+wm_idw_druguse_2019 <- wm_q_druguse_2019 %>%
+  mutate(nb = include_self(
+    st_contiguity(geometry)),
+    wts = st_inverse_distance(nb, 
+                              geometry, 
+                              scale = 1,
+                              alpha = 1),
+         .before = 1)
+```
+
+We will now compute the local Gi\* by using the code chunk below.
+
+```{r}
+HCSA_druguse_2019 <- wm_idw_druguse_2019 %>% 
+  mutate(local_Gi = local_gstar_perm(
+    no_cases, nb, wts, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi)
+```
+
+In the code chunk below, tmap functions are used to plot the local Gi\* (i.e. gi_star) at the province level.
+
+```{r}
+#| eval: false
+
+tmap_mode("plot")
+tm_shape(HCSA_druguse_2019) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+#### 3.2.1.1 P-value of HCSA
+
+In the code chunk below, tmap functions are used to plot the p-values of local Gi\* (i.e. p_sim) at the province level.
+
+```{r}
+tmap_mode("plot")
+tm_shape(HCSA_druguse_2019) +
+  tm_fill("p_sim") + 
+  tm_borders(alpha = 0.5)
+```
+
+#### 3.2.1.2 Visualising local HCSA
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+#| eval: false
+
+druguse_map1 <- tm_shape(HCSA_druguse_2019) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Gi* of GDPPC",
+            main.title.size = 0.8)
+
+druguse_map2 <- tm_shape(HCSA_druguse_2019) +
+  tm_fill("p_value",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Gi*",
+            main.title.size = 0.8)
+
+tmap_arrange(druguse_map1, druguse_map2, ncol = 2)
+```
+
+#### 3.2.1.3 Visualising hot spot and cold spot areas
+
+```{r}
+tmap_mode("plot")
+```
+
+```{r}
+#| eval: false
+
+HCSA_sig_druguse_2019 <- HCSA_druguse_2019  %>%
+  filter(p_sim < 0.05)
+
+tm_shape(HCSA_druguse_2019) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(HCSA_sig_druguse_2019) +
+  tm_fill("cluster") + 
+  tm_borders(alpha = 0.4)
+```
+
+The figure indicates a cluster of high drug use cases around the capital Bangkok. This suggests that factors unique to Bangkok, such as socioeconomic conditions or accessibility to drug supply may contribute to higher occurrences.
+
+# 4.0 Possession Cases 2019
+
+The same code chunks as above will now be applied to possession cases in Thailand in 2019.
+
+```{r}
+possession_cases_2019 <- drug_offence_list[[3]] %>%
+  filter(types_of_drug_offenses == "possession_cases")
+```
+
+Again, we modify the neighbour sets such that there are no empty neighbours.
+
+```{r}
+wm_q_poss_2019 <- possession_cases_2019 %>%
+  mutate(nb = st_contiguity(geometry))
+```
+
+```{r}
+empty_index <- 67 
+nearest_index <- 68
+
+wm_q_poss_2019$nb[[empty_index]] <- as.integer(nearest_index)
+```
+
+```{r}
+wm_q_poss_2019 <- wm_q_poss_2019 %>%
+  mutate(wt = st_weights(nb,
+                         style = "W"),
+         .before=1)
+```
+
+### 4.1.2 Moran’s I test
+
+The code chunk below performs Moran’s I statistical testing using [`moran.test()`](https://r-spatial.github.io/spdep/reference/moran.test.html) of **sfdep**.
+
+```{r}
+moranI_poss_2019 <- global_moran(wm_q_poss_2019$no_cases,
+                       wm_q_poss_2019$nb,
+                       wm_q_poss_2019$wt)
+
+glimpse(moranI_poss_2019)
+```
+
+Performing Global Moran’s I test
+
+```{r}
+global_moran_test(wm_q_poss_2019$no_cases,
+                  wm_q_poss_2019$nb,
+                  wm_q_poss_2019$wt)
+```
+
+### 4.1.3 Monte Carlo simulation
+
+Next, `global_moran_perm()` is used to perform Monte Carlo simulation.
+
+```{r}
+global_moran_perm(wm_q_poss_2019$no_cases,
+                  wm_q_poss_2019$nb,
+                  wm_q_poss_2019$wt,
+                  nsim = 99)
+```
+
+The statistical report on previous tab shows that the p-value is smaller than alpha value of 0.05. Hence, we have enough statistical evidence to reject the null hypothesis that the spatial distribution of drug cases resemble random distribution (i.e. independent from spatial).
+
+Because the Moran's I statistics is greater than 0. We can infer that the spatial distribution shows sign of clustering.
+
+## 4.2 Local Measures of Spatial Autocorrelation
+
+### 4.2.1 Local Indicators of Spatial Association (LISA)
+
+```{r}
+lisa_poss_2019 <- wm_q_poss_2019 %>% 
+  mutate(local_moran = local_moran(
+    no_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+In this code chunk below, tmap functions are used prepare a choropleth map by using value in the *ii* field.
+
+```{r}
+#| eval: false
+
+tm_shape(lisa_poss_2019) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "local Moran's I of number of drug cases",
+            main.title.size = 0.8)
+```
+
+In lisa sf data.frame, we can find three fields contain the LISA categories. They are *mean*, *median* and *pysal*. In general, classification in *mean* will be used as shown in the code chunk below.
+
+```{r}
+lisa_sig_poss_2019 <- lisa_poss_2019  %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+```
+
+```{r}
+#| eval: false
+
+tm_shape(lisa_poss_2019) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig_poss_2019) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+We will need to derive a spatial weight matrix before we can compute local Gi\* statistics
+
+```{r}
+wm_idw_poss_2019 <- wm_q_poss_2019 %>%
+  mutate(nb = include_self(
+    st_contiguity(geometry)),
+    wts = st_inverse_distance(nb, 
+                              geometry, 
+                              scale = 1,
+                              alpha = 1),
+         .before = 1)
+```
+
+We will now compute the local Gi\* by using the code chunk below.
+
+```{r}
+HCSA_poss_2019 <- wm_idw_poss_2019 %>% 
+  mutate(local_Gi = local_gstar_perm(
+    no_cases, nb, wts, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi)
+```
+
+In the code chunk below, tmap functions are used to plot the local Gi\* (i.e. gi_star) at the province level.
+
+```{r}
+#| eval: false
+
+tmap_mode("plot")
+tm_shape(HCSA_poss_2019) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+#### 4.2.1.1 P-value of HCSA
+
+In the code chunk below, tmap functions are used to plot the p-values of local Gi\* (i.e. p_sim) at the province level.
+
+```{r}
+#| eval: false
+
+tmap_mode("plot")
+tm_shape(HCSA_poss_2019) +
+  tm_fill("p_sim") + 
+  tm_borders(alpha = 0.5)
+```
+
+#### 4.2.1.2 Visualising local HCSA
+
+```{r}
+#| eval: false
+
+tmap_mode("plot")
+poss_map1 <- tm_shape(HCSA_poss_2019) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Gi* of GDPPC",
+            main.title.size = 0.8)
+
+poss_map2 <- tm_shape(HCSA_poss_2019) +
+  tm_fill("p_value",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Gi*",
+            main.title.size = 0.8)
+
+tmap_arrange(poss_map1, poss_map2, ncol = 2)
+```
+
+#### 4.2.1.3 Visualising hot spot and cold spot areas
+
+```{r}
+#| eval: false
+
+HCSA_sig_poss_2019 <- HCSA_poss_2019  %>%
+  filter(p_sim < 0.05)
+tmap_mode("plot")
+tm_shape(HCSA_poss_2019) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(HCSA_sig_poss_2019) +
+  tm_fill("cluster") + 
+  tm_borders(alpha = 0.4)
+```
+
+The map indicates clusters of high drug possession cases in the northern and southern regions of Thailand, such as Samut Prakan and Chiang Mai. Samut Prakan has several transportation hubs, including Suvarnabhumi Airport. This could facilitate the movement of drugs into and out of the province. As for Chiang Mai, it has an influx of tourists which can be a reason for higher cases of drug possession.
+
+# 5.0 Import Cases 2019
+
+The same code chunks as above will now be applied to possession cases in Thailand in 2019.
+
+```{r}
+import_cases_2019 <- drug_offence_list[[3]] %>%
+  filter(types_of_drug_offenses == "import_cases")
+```
+
+Again, we modify the neighbour sets such that there are no empty neighbours.
+
+```{r}
+wm_q_import_2019 <- import_cases_2019 %>%
+  mutate(nb = st_contiguity(geometry))
+```
+
+```{r}
+empty_index <- 67 
+nearest_index <- 68
+
+wm_q_import_2019$nb[[empty_index]] <- as.integer(nearest_index)
+```
+
+```{r}
+wm_q_import_2019 <- wm_q_import_2019 %>%
+  mutate(wt = st_weights(nb,
+                         style = "W"),
+         .before=1)
+```
+
+### 5.1.2 Moran’s I test
+
+The code chunk below performs Moran’s I statistical testing using [`moran.test()`](https://r-spatial.github.io/spdep/reference/moran.test.html) of **sfdep**.
+
+```{r}
+moranI_import_2019 <- global_moran(wm_q_import_2019$no_cases,
+                       wm_q_import_2019$nb,
+                       wm_q_import_2019$wt)
+
+glimpse(moranI_import_2019)
+```
+
+Performing Global Moran’s I test
+
+```{r}
+#| eval: false
+
+global_moran_test(wm_q_import_2019$no_cases,
+                  wm_q_import_2019$nb,
+                  wm_q_import_2019$wt)
+```
+
+### 5.1.3 Monte Carlo simulation
+
+Next, `global_moran_perm()` is used to perform Monte Carlo simulation.
+
+```{r}
+#| eval: false
+
+global_moran_perm(wm_q_import_2019$no_cases,
+                  wm_q_import_2019$nb,
+                  wm_q_import_2019$wt,
+                  nsim = 99)
+```
+
+The statistical report on previous tab shows that the p-value is smaller than alpha value of 0.05. Hence, we have enough statistical evidence to reject the null hypothesis that the spatial distribution of drug cases resemble random distribution (i.e. independent from spatial).
+
+Because the Moran's I statistics is greater than 0. We can infer that the spatial distribution shows sign of clustering.
+
+## 5.2 Local Measures of Spatial Autocorrelation
+
+### 5.2.1 Local Indicators of Spatial Association (LISA)
+
+```{r}
+lisa_import_2019 <- wm_q_import_2019 %>% 
+  mutate(local_moran = local_moran(
+    no_cases, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+```
+
+```{r}
+tmap_mode("plot")
+```
+
+In this code chunk below, tmap functions are used prepare a choropleth map by using value in the *ii* field.
+
+```{r}
+#| eval: false
+
+tm_shape(lisa_import_2019) +
+  tm_fill("ii") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "local Moran's I of import cases",
+            main.title.size = 0.8)
+```
+
+In lisa sf data.frame, we can find three fields contain the LISA categories. They are *mean*, *median* and *pysal*. In general, classification in *mean* will be used as shown in the code chunk below.
+
+```{r}
+lisa_sig_import_2019 <- lisa_import_2019  %>%
+  filter(p_ii < 0.05)
+tmap_mode("plot")
+```
+
+```{r}
+#| eval: false
+
+tm_shape(lisa_import_2019) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_sig_import_2019) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)
+```
+
+We will need to derive a spatial weight matrix before we can compute local Gi\* statistics
+
+```{r}
+wm_idw_import_2019 <- wm_q_import_2019 %>%
+  mutate(nb = include_self(
+    st_contiguity(geometry)),
+    wts = st_inverse_distance(nb, 
+                              geometry, 
+                              scale = 1,
+                              alpha = 1),
+         .before = 1)
+```
+
+We will now compute the local Gi\* by using the code chunk below.
+
+```{r}
+HCSA_import_2019 <- wm_idw_import_2019 %>% 
+  mutate(local_Gi = local_gstar_perm(
+    no_cases, nb, wts, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi)
+
+HCSA_import_2019
+```
+
+In the code chunk below, tmap functions are used to plot the local Gi\* (i.e. gi_star) at the province level.
+
+```{r}
+#| eval: false
+
+tmap_mode("plot")
+tm_shape(HCSA_import_2019) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8))
+```
+
+#### 3.2.1.1 P-value of HCSA
+
+In the code chunk below, tmap functions are used to plot the p-values of local Gi\* (i.e. p_sim) at the province level.
+
+```{r}
+#| eval: false
+
+tmap_mode("plot")
+tm_shape(HCSA_import_2019) +
+  tm_fill("p_sim") + 
+  tm_borders(alpha = 0.5)
+```
+
+#### 3.2.1.2 Visualising local HCSA
+
+```{r}
+#| eval: false
+
+tmap_mode("plot")
+import_map1 <- tm_shape(HCSA_import_2019) +
+  tm_fill("gi_star") + 
+  tm_borders(alpha = 0.5) +
+  tm_view(set.zoom.limits = c(6,8)) +
+  tm_layout(main.title = "Gi* of GDPPC",
+            main.title.size = 0.8)
+
+import_map2 <- tm_shape(HCSA_import_2019) +
+  tm_fill("p_value",
+          breaks = c(0, 0.001, 0.01, 0.05, 1),
+              labels = c("0.001", "0.01", "0.05", "Not sig")) + 
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "p-value of Gi*",
+            main.title.size = 0.8)
+
+tmap_arrange(import_map1, import_map2, ncol = 2)
+```
+
+#### 3.2.1.3 Visualising hot spot and cold spot areas
+
+```{r}
+#| eval: false
+
+HCSA_sig_import_2019 <- HCSA_import_2019  %>%
+  filter(p_sim < 0.05)
+tmap_mode("plot")
+tm_shape(HCSA_import_2019) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(HCSA_sig_import_2019) +
+  tm_fill("cluster") + 
+  tm_borders(alpha = 0.4)
+```
+
+Phatthalung, Songkhla, and Satun are considered transportation hubs in southern Thailand. They are connected via railway lines, ferries, and airports, which may be a reason why drug imports are very high there.

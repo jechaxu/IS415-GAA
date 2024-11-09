@@ -1,0 +1,669 @@
+---
+title: "take home exercise 3"
+author: "jenna cheo"
+date: "October 15, 2024"
+modified-date: "last-modified"
+---
+
+# 1. Introduction
+
+This study investigates the spatial distribution and evolution of crime in Malaysia over recent years. By employing advanced spatial analysis techniques, we aim to identify hotspots, coldspots, and emerging trends in crime patterns. Our analysis utilizes a comprehensive dataset of crime incidents, including location, type, and date of occurrence.
+
+The exercise will focus only on one page consisting of all portions that I am responsible for. This includes:
+
+-   Global Spatial Autocorrelation (Moran’s I)
+
+-   Local Spatial Autocorrelation (Local Moran’s I - LISA Map)
+
+# 2. UI
+
+The results would be displayed in a map using Shiny App, and the initial proposed layout is as followed:
+
+![](images/clipboard-4138186299.png)
+
+To insert the user input specifications and controls, Shiny has functions like `sliderInput()`, `selectInput()`, `textInput()`, `numericInput()`, `checkboxInput()`, and `checkboxGroupInput()`.
+
+![Image taken from [Dr. Paula Moraga](https://www.paulamoraga.com/book-geospatial/sec-shiny.html)](images/Screenshot%202024-03-20%20at%209.02.23%20PM.png){width="551"}
+
+# 3. Importing data and packages into R
+
+```{r}
+pacman::p_load(sf, st, tidyverse, raster, tmap, tmaptools, ggplot2, spatstat, sfdep, spdep)
+```
+
+## 3.1 Datasets being used
+
+There are three datasets being used in this exercise.
+
+-   [Malaysia – Crime by District and Crime Type](https://data.gov.my/data-catalogue/crime_district) from data.gov.my in csv format.
+
+-   [Malaysia - Population Table: Administrative Districts](https://data.gov.my/data-catalogue/population_district) from data.gov.my in csv format.
+
+-   [Malaysia - Subnational Administrative Boundaries](https://data.humdata.org/dataset/cod-ab-mys) with included administrative regions in shapefile format.
+
+```{r}
+crime_df <- read_csv("data/aspatial/crime_district.csv")
+
+population_df <- read_csv("data/aspatial/population_district.csv")
+```
+
+Next, we import the administrative regions of Malaysia.
+
+```{r}
+mys_sf <- read_sf(dsn = "data/geospatial/mys_adm_unhcr_20210211_shp", 
+                 layer = "mys_admbnda_adm2_unhcr_20210211") %>%
+          st_transform(crs = 3168)
+```
+
+## 3.2 Wrangling
+
+### 3.2.1 Data Preparation
+
+We first identify the states in each dataset to pick out any inconsistencies to resolve.
+
+```{r}
+print("Unique states in crime_df:")
+unique(crime_df$state)
+
+print("Unique states in population_df:")
+unique(crime_df$state)
+
+print("Unique states in mys_sf:")
+unique(mys_sf$ADM1_EN)
+```
+
+We then convert the state and district columns to upper case for matching.
+
+```{r}
+crime_df <- crime_df %>%
+              mutate(year = year(date),
+                     state = toupper(state),
+                     district = toupper(district))
+crime_df
+```
+
+```{r}
+population_df <- population_df %>%
+              mutate(year = year(date),
+                     state = toupper(state),
+                     district = toupper(district))
+population_df
+```
+
+```{r}
+mys_sf <- mys_sf %>%
+          mutate(ADM1_EN = toupper(ADM1_EN),
+                 ADM2_EN = toupper(ADM2_EN))
+
+mys_sf
+```
+
+### 3.2.2 Checking for Mismatch (State)
+
+```{r}
+# Assuming you have two character vectors:
+state_crime <- unique(crime_df$state)
+state_sf <- unique(mys_sf$ADM1_EN)
+
+# Find states in crime_df that are not in mys_sf
+missing_in_sf <- setdiff(state_crime, state_sf)
+
+# Find states in mys_sf that are not in crime_df
+missing_in_crime <- setdiff(state_sf, state_crime)
+
+# Print the mismatches
+print("States in crime_df not found in mys_sf:")
+print(missing_in_sf)
+
+print("States in mys_sf not found in crime_df:")
+print(missing_in_crime)
+```
+
+### 3.2.3 Cleaning (State)
+
+In this case study, for ease of analysis, we choose to focus on West Malaysia, and thus will be filtering out Sarawak, Sabah and Labuan, which are not the focus of our current analysis.
+
+```{r}
+mys_sf <- mys_sf %>%
+          filter(ADM1_EN != 'W.P. LABUAN' & ADM1_EN != 'SABAH' & ADM1_EN != 'SARAWAK') %>%
+          mutate(ADM1_EN = replace(ADM1_EN, ADM1_EN == 'W.P. KUALA LUMPUR', 'KUALA LUMPUR'),
+                 ADM1_EN = replace(ADM1_EN, ADM1_EN == 'W.P. PUTRAJAYA', 'KUALA LUMPUR'))
+
+mys_sf
+```
+
+```{r}
+crime_df <- crime_df %>%
+              filter(state != 'MALAYSIA' & state != 'SABAH' & state != 'SARAWAK' & 
+                     district != 'ALL' & type != 'all') %>%
+              mutate(state = replace(state, state == 'W.P. KUALA LUMPUR', 'KUALA LUMPUR'))
+crime_df
+```
+
+```{r}
+population_df <- population_df %>%
+          filter(state != 'SABAH' & state != 'SARAWAK' & state != 'W.P. LABUAN' &
+                 sex == "both" & age == "overall" & ethnicity == "overall" ) %>%
+          mutate(state = replace(state, state == 'W.P. KUALA LUMPUR', 'KUALA LUMPUR'),
+                 state = replace(state, state == 'W.P. PUTRAJAYA', 'KUALA LUMPUR')) %>%
+          dplyr::select(state, district, year, population)
+population_df
+```
+
+### 3.2.4 Crime (State-District)
+
+#### 3.2.4.1 Checking for Mismatch in crime_df and mys_sf
+
+```{r}
+crime_df <- crime_df %>% mutate(state_district = paste(state, district, sep = "-"))
+mys_sf <- mys_sf %>% mutate(state_district = paste(ADM1_EN, ADM2_EN, sep = "-"))
+```
+
+```{r}
+# Assuming you have two character vectors:
+state_district_crime <- unique(crime_df$state_district)
+state_district_sf <- unique(mys_sf$state_district)
+
+# Find mismatches
+missing_in_sf <- setdiff(state_district_crime, state_district_sf)
+missing_in_crime <- setdiff(state_district_sf, state_district_crime)
+
+# Print the mismatches
+print("State-District combinations in crime_df not found in mys_sf:")
+print(missing_in_sf)
+
+print("State-District combinations in mys_sf not found in crime_df:")
+print(missing_in_crime)
+```
+
+#### 3.2.4.2 Cleaning
+
+```{r}
+crime_df <- crime_df %>%
+  mutate(district = case_when(
+    state == "JOHOR" & district %in% c("ISKANDAR PUTERI", "NUSAJAYA", "JOHOR BAHRU SELATAN", "JOHOR BAHRU UTARA", "SERI ALAM") ~ "JOHOR BAHRU",
+    state == "NEGERI SEMBILAN" & district == "NILAI" ~ "SEREMBAN",
+    state == "KEDAH" & district == "BANDAR BHARU" ~ "BANDAR BAHARU",
+    state == "PAHANG" & district == "CAMERON HIGHLAND" ~ "CAMERON HIGHLANDS",
+    state == "PAHANG" & district == "KUALA LIPIS" ~ "LIPIS",
+    state == "PERAK" & district  %in% c("BATU GAJAH", "IPOH") ~ "KINTA",
+    state == "PERAK" & district == "GERIK" ~ "ULU PERAK",
+    state == "PERAK" & district == "MANJUNG" ~ "MANJUNG (DINDING)",
+    state == "PERAK" & district == "PENGKALAN HULU" ~ "ULU PERAK",
+    state == "PERAK" & district %in% c("SELAMA", "TAIPING") ~ "LARUT DAN MATANG",
+    state == "PERAK" & district == "SUNGAI SIPUT" ~ "KUALA KANGSAR",
+    state == "PERAK" & district %in% c("TANJONG MALIM", "TAPAH") ~ "BATANG PADANG",
+    state == "PERLIS" & district %in% c("ARAU", "KANGAR", "PADANG BESAR") ~ "PERLIS",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI SELATAN" ~ "S.P.SELATAN",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI TENGAH" ~ "S.P. TENGAH",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI UTARA" ~ "S.P. UTARA",
+    state == "SELANGOR" & district == "AMPANG JAYA" ~ "GOMBAK",
+    state == "SELANGOR" & district == "HULU SELANGOR" ~ "ULU SELANGOR",
+    state == "SELANGOR" & district == "KAJANG" ~ "ULU LANGAT",
+    state == "SELANGOR" & district %in% c("KLANG SELATAN", "KLANG UTARA") ~ "KLANG",
+    state == "SELANGOR" & district %in% c("PETALING JAYA", "SERDANG", "SG. BULOH", "SHAH ALAM", "SUBANG JAYA", "SUNGAI BULOH") ~ "PETALING",
+    state == "KUALA LUMPUR" & district %in% c("BRICKFIELDS", "CHERAS", "DANG WANGI", "SENTUL", "WANGSA MAJU") ~ "WP. KUALA LUMPUR",
+    TRUE ~ district
+  )) %>%
+  group_by(state, district, year, category, type) %>%
+  summarise(crimes = sum(crimes))
+```
+
+```{r}
+tm_shape(mys_sf) +
+  tm_polygons() +
+  tm_text("ADM2_EN", size = 0.3)
+```
+
+#### 3.2.4.3 Visualizing Crime Distribution
+
+```{r}
+crime_df_mys <- crime_df %>%
+  filter(year >= 2019 & year <= 2022) %>%
+  left_join(mys_sf, by = c("state" = "ADM1_EN", "district" = "ADM2_EN")) %>%
+  dplyr::select(state, district, year, category, type, crimes, Shape_Leng, Shape_Area, geometry)
+
+crime_df_mys <- st_as_sf(crime_df_mys)
+crime_df_mys
+```
+
+```{r}
+tmap_mode("plot")
+
+crime_df_mys_grp <- crime_df_mys %>%
+  summarize(total_crimes = sum(crimes))
+
+choro <- tm_shape(crime_df_mys_grp) +
+  tm_fill("total_crimes", 
+          style = "pretty", 
+          palette = "Blues",
+          title = "Crimes") +
+  tm_layout(main.title = "Distribution of crime in West Malaysia",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size = 2) +
+  tm_scale_bar() +
+  tm_grid(alpha =0.2)
+
+choro
+```
+
+### 3.2.5 Population (State-District)
+
+#### 3.2.5.1 Check for Mismatch
+
+The year 2019 is missing from the population data set, hence we make the assumption that the population did not experience any drastic increase or decrease, and will thus map population from year 2020 -\> 2019.
+
+```{r}
+population_row <- population_df %>%
+  filter(year == 2020) %>%
+  mutate(year = 2019) 
+population_df <- bind_rows(population_df, population_row) %>% 
+  mutate(state_district = paste(state, district, sep = "-"))
+unique(population_df$year)
+```
+
+```{r}
+state_district_population <- unique(population_df$state_district)
+
+missing_in_sf <- setdiff(state_district_population, state_district_sf)
+missing_in_population <- setdiff(state_district_sf, state_district_population)
+
+print("State-District combinations in population_df not found in mys_sf:")
+print(missing_in_sf)
+
+print("State-District combinations in mys_sf not found in population_df:")
+print(missing_in_population)
+```
+
+#### 3.2.5.2 Cleaning
+
+```{r}
+population_df <- population_df %>%
+  mutate(district = case_when(
+    state == "JOHOR" & district == "KULAI" ~ "KULAIJAYA",
+    state == "JOHOR" & district == "TANGKAK" ~ "LEDANG",
+    state == "KELANTAN" & district == "KECIL LOJING" ~ "GUA MUSANG",
+    state == "PAHANG" & district == "CAMERON HIGHLAND" ~ "CAMERON HIGHLANDS",
+    state == "PERAK" & district == "HULU PERAK" ~ "ULU PERAK",
+    state == "PERAK" & district == "BAGAN DATUK" ~ "HILIR PERAK",
+    state == "PERAK" & district == "MANJUNG" ~ "MANJUNG (DINDING)",
+    state == "PERAK" & district == "MUALLIM" ~ "BATANG PADANG",
+    state == "PERAK" & district == "SELAMA" ~ "LARUT DAN MATANG",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI SELATAN" ~ "S.P.SELATAN",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI TENGAH" ~ "S.P. TENGAH",
+    state == "PULAU PINANG" & district == "SEBERANG PERAI UTARA" ~ "S.P. UTARA",
+    state == "PULAU PINANG" & district == "SP SELATAN" ~ "S.P.SELATAN",
+    state == "PULAU PINANG" & district == "SP TENGAH" ~ "S.P. TENGAH",
+    state == "PULAU PINANG" & district == "SP UTARA" ~ "S.P. UTARA",
+    state == "KUALA LUMPUR" & district == "W.P. KUALA LUMPUR" ~ "WP. KUALA LUMPUR",
+    state == "TERENGGANU" & district == "KUALA NERUS" ~ "KUALA TERENGGANU",
+    TRUE ~ district
+  )) %>%
+  group_by(state, district, year) %>%
+  summarise(population = sum(population))
+
+population_df
+```
+
+```{r}
+population_df_mys <- population_df %>%
+  left_join(mys_sf, by = c("state" = "ADM1_EN", "district" = "ADM2_EN")) %>%
+  dplyr::select(state, district, year, population, geometry)
+
+population_df_mys <- st_as_sf(population_df_mys)
+population_df_mys
+```
+
+### 3.2.6 Joining
+
+#### 3.2.6.1 Join with Population Data
+
+```{r}
+crime_df_mys <- crime_df %>% 
+  filter(year >= 2019 & year <= 2022) %>%
+  left_join(population_df, by = c("state", "district", "year")) %>%
+  mutate(crimes_pc = crimes/population) %>%
+  dplyr::select(state, district, year, category, type, crimes, crimes_pc, population)
+```
+
+#### 3.2.6.2 Create for Pokok Sena District
+
+Unfortunately, the crime dataset we have sourced did not contain any information on the crimes in Pokok Sena District, possibility due to the scarce population in the area. To resolve this, we have taken the mean of the crime per capita in the neighbouring districts in Kedah State to apply to Pokok Sena.
+
+```{r}
+pokok_sena_rows <- crime_df_mys %>%
+  filter(state == "KEDAH") %>%
+  group_by(state, year, category, type) %>%
+  summarise(crimes = mean(crimes),
+            crimes_pc = mean(crimes_pc),
+            population = mean(population)) %>% 
+  mutate(district = "POKOK SENA")
+
+pokok_sena_rows
+crime_df_mys <- bind_rows(crime_df_mys, pokok_sena_rows)
+```
+
+#### 2.3.6.3 Join with District Boundary
+
+```{r}
+crime_df_mys <- crime_df_mys %>%
+  left_join(mys_sf, by = c("state" = "ADM1_EN", "district" = "ADM2_EN")) %>%
+  dplyr::select(state, district, year, category, type, crimes, crimes_pc, population, geometry)
+
+crime_df_mys <- st_as_sf(crime_df_mys)
+crime_df_mys
+```
+
+### 3.2.7 Visualizing the distribution of crime
+
+```{r}
+crime_df_mys_grp <- crime_df_mys %>%
+  group_by(state, district) %>%
+  summarize(total_crimes_pc = sum(crimes_pc)/4)
+```
+
+```{r}
+tmap_mode("plot")
+
+choro <- tm_shape(crime_df_mys_grp) +
+  tm_fill("total_crimes_pc", 
+          n = 5,
+          style = "equal", 
+          palette = "Blues",
+          title = "Crime per Capita in West Malaysia") +
+  tm_layout(main.title = "Crime per Capita Distribution",
+            main.title.position = "center",
+            main.title.size = 1.2,
+            legend.height = 0.45, 
+            legend.width = 0.35,
+            frame = TRUE) +
+  tm_borders(alpha = 0.5) +
+  tm_compass(type="8star", size = 2, position = c("right", "top")) +
+  tm_grid(alpha =0.2)
+
+
+choro
+```
+
+## 3.4 Global Measures of Spatial Autocorrelation
+
+### 3.4.1 Computing Contiguity Spatial Weights
+
+We now generate the neighbours list.
+
+```{r}
+mys_nb_q <- st_contiguity(crime_df_mys_grp, queen=TRUE)
+
+# Langkawi has no immediate neighbours, hence its neighbour has to be manually added.
+mys_nb_q[[17]] <- as.integer(c(18))
+mys_nb_q[[18]] <- as.integer(sort(unique(c(mys_nb_q[[18]], 17))))
+
+mys_wm_rs <- st_weights(mys_nb_q, style="W")
+
+wm_q <- crime_df_mys_grp %>%
+  ungroup() %>%
+  mutate(nb = mys_nb_q,
+         wt = mys_wm_rs,
+         .before = 1) 
+```
+
+### 3.4.2 Moran’s I test
+
+The code chunk below performs Moran’s I statistical testing using [`moran.test()`](https://r-spatial.github.io/spdep/reference/moran.test.html) of **spdep**. The primary goal of the test is to determine whether the spatial autocorrelation is positive, negative or non-existent.
+
+**Null Hypothesis** $H_0:I\leq E[I]$. This suggests that there is either no spatial autocorrelation ($I=E[I]$). or negative spatial autocorrelation ($I<E[I]$).
+
+**Alternative Hypothesis** $H_0:I> E[I]$. This indicates the presence of positive spatial autocorrelation.
+
+```{r}
+moranI <- global_moran(wm_q$total_crimes_pc,
+                        wm_q$nb,
+                        wm_q$wt)
+```
+
+```{r}
+global_moran_test(wm_q$total_crimes_pc,
+                  wm_q$nb,
+                  wm_q$wt,
+                  alternative = "greater")
+```
+
+Based on the Moran's I test, we can conclude that there is evidence of significant positive spatial autocorrelation in the crime data. This suggests that the distribution of crime in Malaysia is not random and that there are clusters of high and low crime rates.
+
+-   The Moran's I statistic is positive (0.271500147), suggesting a positive spatial autocorrelation in the crime data. This means that areas with similar crime rates tend to be located near each other.
+
+-   The standard deviate of 3.8061 indicates the significance of the Moran's I statistic. A higher standard deviate suggests a stronger spatial pattern.
+
+-   The p-value of 7.058e-05 is less than the significance level of 0.05, indicating that the observed spatial pattern is statistically significant. This means that it is unlikely to have occurred by chance.
+
+#### 3.4.2.1 Performing Global Moran’s I permutation test
+
+```{r}
+set.seed(123)
+
+gmoranMC <- global_moran_perm(wm_q$total_crimes_pc,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 999)
+gmoranMC
+```
+
+-   We can observe that the Moran’s I statistic is **0.2715** with a p-value **\< 2.2e-16**, which is similar to our previous result using `moran.test()`. It confirms that our result is stable.
+
+#### 3.4.2.2 Visualising Monte Carlo Moran's I
+
+```{r}
+hist(gmoranMC$res, main="Histogram of Simulation Results", xlab="Monte-Carlo Results", ylab="Frequency")
+
+abline(v = gmoranMC$statistic, col = "red")
+```
+
+### 3.4.3 Geary's C test
+
+The code chunk below performs Global Geary’s C test for spatial autocorrelation by using geary.test() of spdep.
+
+```{r}
+global_c_test(wm_q$total_crimes_pc,
+                  wm_q$nb,
+                  wm_q$wt,
+                  alternative = "greater")
+```
+
+The calculated Geary's C statistic of **0.649379732** deviates from the expected value of 1, indicating a potential spatial pattern in the data. The associated p-value of **2.155e-05** is statistically significant at the 0.05 level, further supporting the conclusion that the observed spatial pattern is unlikely to be due to random chance. Therefore, we reject the null hypothesis of no spatial autocorrelation.
+
+#### 3.4.3.1 Monte Carlo Geary’s C
+
+```{r}
+set.seed(123)
+
+bperm <- global_c_perm(wm_q$total_crimes_pc,
+                  wm_q$nb,
+                  wm_q$wt,
+                  nsim = 999)
+bperm
+```
+
+It can be seen that the results are similar to the previous output of the code chunk. Hence our result is statistically significant.
+
+#### 3.4.3.2 Visualising the Monte Carlo Geary’s C
+
+```{r}
+hist(bperm$res, 
+     freq=TRUE, breaks=20, 
+     xlab="Simulated Geary c")
+
+abline(v=1, col="red") 
+```
+
+## 3.5 Local Measures of Spatial Autocorrelation
+
+### 3.5.1 Computing Local Moran's I
+
+To compute local Moran’s I, the local_moran() function of **sfdep** will be used. It computes Ii values, given a set of zi values and a listw object providing neighbour weighting information for the polygon associated with the zi values.
+
+```{r}
+lisa <- wm_q %>% 
+  mutate(local_moran = local_moran(
+    total_crimes_pc, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+
+lisa
+```
+
+#### 3.5.1.1 Visualising Local Moran’s I
+
+```{r}
+tm_shape(lisa)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+#### 3.5.1.2 Visualising Local Moran’s I p-value
+
+```{r}
+tm_shape(lisa)+
+  tm_fill("p_ii_sim", 
+          palette = c("#b7dce9","#c9e3d2","#f5f3a6","#ec9a64","#d21b1c"),
+          title = "p-value",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+#### 3.5.1.3 Visualising Statistically Significant Local Spatial Autocorrelation Map
+
+From the p-value map above, it appears that not every district exhibits a statistically significant Local Moran’s value. We will thus filter out to focus our analysis will focus solely on districts with statistically significant values.
+
+```{r}
+lisa_sig <- lisa  %>%
+  filter(p_ii_sim < 0.05)
+
+tm_shape(lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(lisa_sig)+
+  tm_fill("ii", 
+          palette = c("#b7dce9","#e1ecbb","#f5f3a6",
+                      "#f8d887","#ec9a64","#d21b1c"),
+          title = "Local Moran's I (p < 0.05)",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+### 3.5.2 LISA Classification
+
+Specific to our study, we may infer LISA classifications as below.
+
+```         
+High-Low Outliers: districts with a high value of crime per capita, surrounded by districts with low values of crime per capita
+
+Low-High Outliers: districts with a low value of crime per capita, surrounded by neighbouring districts with high values of crime per capita
+
+High-High Clusters: districts with a high value of crime per capita, surrounded by neighbouring districts with high values of crime per capita
+
+Low-Low Clusters: districts with a low value of crime per capita, surrounded by neighbouring districts with low values of crime per capita
+```
+
+```{r}
+tmap_mode("plot")
+study_area_lisa <- tm_shape(lisa)+
+  tm_polygons() +
+  tm_borders(col = "black", alpha = 0.6)+
+tm_shape(lisa_sig)+
+  tm_fill("mean", 
+          palette = c("#b7dce9","#ec9a64","#e1ecbb", "#d21b1c"),
+          title = "LISA class",
+          midpoint = NA,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)
+
+study_area_lisa
+```
+
+## 3.6 Hot and Cold Spots Analysis (HCSA)
+
+The Gi and Gi\* measures are typically reported as a z-score where high values indicate a high-high cluster, and negative z-scores indicate a low-low cluster. There are no high-low and low-high classifications like the local Moran.
+
+```{r}
+wm_idw <- crime_df_mys_grp %>%
+  ungroup() %>%
+  mutate(nb = include_self(st_contiguity(geometry)),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+```
+
+Next, we will calculate local using local_gstart_perm() function.
+
+```{r}
+HCSA <- wm_idw %>% 
+  mutate(local_Gi_star = local_gstar_perm(
+    total_crimes_pc, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_Gi_star)
+```
+
+```{r}
+tmap_mode("plot")  
+tm_shape(HCSA)+
+  tm_fill("gi_star", 
+          palette = c("#57bfc0", "#7977f3","#f8d673","#f8b675","#f67774"),
+          title = "Gi*",
+          midpoint = 0) +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+Similar to what we did for the LISA map, we choose to narrow our focus onto districts with statistically significant Gi\* values.
+
+```{r}
+HCSA_sig <- HCSA  %>%
+  filter(p_sim < 0.05)
+
+tmap_mode("plot")
+tm_shape(HCSA) +
+  tm_polygons() +
+tm_shape(HCSA_sig)+
+  tm_fill("gi_star", 
+          palette = c("#57bfc0", "#7977f3","#f8d673","#f8b675","#f67774"),
+          title = "Gi*",
+          midpoint = 0,
+          legend.hist = TRUE, 
+          legend.is.portrait = TRUE,
+          legend.hist.z = 0.1) +
+  tm_borders(col = "black", alpha = 0.6)
+```
+
+```{r}
+set.seed(123)
+
+three_hotspots <- (head((HCSA_sig[HCSA_sig$gi_star > 2,]), 3)$district)
+three_coldspots <-  (head((HCSA_sig[HCSA_sig$gi_star > -2,]), 3)$district)
+
+three_hotspots
+three_coldspots
+```
+
+# 4. Conclusion
+
+It was exciting to apply my research skills to a real-world data analysis project. By diving into the world of data visualization, I had fun with attempts of transforming complex information into compelling stories. This experience has ignited my enthusiasm for data-driven decision-making, and I look forward to further continue working on this exercise in the project.

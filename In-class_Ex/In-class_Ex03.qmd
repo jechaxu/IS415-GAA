@@ -1,0 +1,40 @@
+---
+title: "In-class_Ex03"
+author: "Jenna Cheo"
+date: "2nd September 2024"
+date-modified: "last-modified"
+format: html
+editor: visual
+execute: 
+  freeze: true
+  eval: false
+---
+
+To obtain reproducible results for monte carlo simulation, use set.seed (can place it at the very top of the document to standardize throughout)
+
+```{r}
+#| eval: false
+install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
+```
+
+```{r}
+pacman::p_load(sf, raster, spatstat, tmap, tidyverse, maptools, sp)
+```
+
+```{r}
+acled_sf <- st_read("data/ACLED_Myanmar.csv") %>%
+  st_as_sf(coords = c(
+    "longitude", "latitude"),
+    crs=4326) %>%
+  st_transform(crs = 32647) %>%
+  mutate(event_date = dmy(event_date))
+```
+
+```{r}
+tmap_mode('plot')
+acled_sf %>%
+  filter(year == 2023 |
+           event_type == "Political Violence") %>%
+  tm_shape()+tm_dots()
+tmap_mode('plot')
+```
