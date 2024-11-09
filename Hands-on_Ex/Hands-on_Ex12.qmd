@@ -152,12 +152,18 @@ gwRF_adaptive <- read_rds("data/rds/gwRF_adaptive.rds")
 
 ### Predicting by using test data
 
+unfortunately, im unable to evaluate the last few chunks of code as it takes too long to run and fails.
+
 ```{r}
+#| eval: false
+
 test_data <- cbind(test_data, coords_test) %>%
   st_drop_geometry()
 ```
 
 ```{r}
+#| eval: false
+
 gwRF_pred <- predict.grf(gwRF_adaptive, 
                            test_data, 
                            x.var.name="X",
@@ -167,32 +173,44 @@ gwRF_pred <- predict.grf(gwRF_adaptive,
 ```
 
 ```{r}
+#| eval: false
+
 GRF_pred <- write_rds(gwRF_pred, "data/rds/GRF_pred.rds")
 ```
 
 Convert it to data frame...
 
 ```{r}
+#| eval: false
+
 GRF_pred <- read_rds("data/rds/GRF_pred.rds")
 GRF_pred_df <- as.data.frame(GRF_pred)
 ```
 
 ```{r}
+#| eval: false
+
 test_data_p <- cbind(test_data, GRF_pred_df)
 ```
 
 ```{r}
+#| eval: false
+
 write_rds(test_data_p, "data/rds/test_data_p.rds")
 ```
 
 Calculating Root Mean Square Error (RMSE)
 
 ```{r}
+#| eval: false
+
 rmse(test_data_p$resale_price, 
      test_data_p$GRF_pred)
 ```
 
 ```{r}
+#| eval: false
+
 ggplot(data = test_data_p,
        aes(x = GRF_pred,
            y = resale_price)) +
