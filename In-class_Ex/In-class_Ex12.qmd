@@ -12,7 +12,7 @@ editor: visual
 ## Data Preparing
 
 ```{r}
-pacman::p_load(sf, spdep, GWmodel, SpatialML, 
+pacman::p_load(sf, spdep, GWmodel, SpatialML, olsrr, ggstatplot,
                tmap, rsample, Metrics, tidyverse)
 ```
 
@@ -36,6 +36,7 @@ summary(overlapping_points$overlap)
 HDB_sample <- HDB_sample %>%
   st_jitter(amount = 5)
 ```
+
 ## Data Sampling
 
 ```{r}
@@ -55,6 +56,7 @@ write_rds(test_data, "data/rds/test_data.rds")
 ```
 
 ```{r}
+#| eval: false
 mdata_nogeo <- mdata %>%
   st_drop_geometry()
 ggstatplot::ggcorrmat(mdata_nogeo[, 2:17])
@@ -83,7 +85,7 @@ gwr_bw_train_ad <- bw.gwr(resale_price ~ floor_area_sqm +
                 data=train_data,
                 approach="CV",
                 kernel="gaussian",
-                adapative=TRUE,
+                adaptive=TRUE,
                 longlat=FALSE)
 ```
 
@@ -98,7 +100,7 @@ gwr_ad <- gwr.basic(formula = resale_price ~ floor_area_sqm +
                 data=train_data,
                 bw=20,
                 kernel="gaussian",
-                adapative=TRUE,
+                adaptive=TRUE,
                 longlat=FALSE)
 ```
 
