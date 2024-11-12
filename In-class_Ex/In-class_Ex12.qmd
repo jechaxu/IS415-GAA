@@ -12,8 +12,9 @@ editor: visual
 ## Data Preparing
 
 ```{r}
-pacman::p_load(sf, spdep, GWmodel, SpatialML, olsrr, ggstatplot,
-               tmap, rsample, Metrics, tidyverse)
+pacman::p_load(sf, spdep, GWmodel, SpatialML, 
+               tmap, rsample, yardstick, tidyverse,
+               knitr, kableExtra, spatialRF)
 ```
 
 ```{r}
@@ -56,10 +57,14 @@ write_rds(test_data, "data/rds/test_data.rds")
 ```
 
 ```{r}
-#| eval: false
 mdata_nogeo <- mdata %>%
   st_drop_geometry()
-ggstatplot::ggcorrmat(mdata_nogeo[, 2:17])
+```
+
+```{r}
+#| eval: false
+
+ggstatsplot::ggcorrmat(mdata_nogeo[, 2:17])
 ```
 
 ```{r}
@@ -73,6 +78,17 @@ price_mlr <- lm(resale_price ~ floor_area_sqm +
                 data=train_data)
 olsrr::ols_regress(price_mlr)
 ```
+
+Multicollinearity check with VIF
+
+```{r}
+vif <- performance::check_collinearity(price_mlr)
+kable(vif, 
+      caption = "Variance Inflation Factor (VIF) Results") %>%
+  kable_styling(font_size = 18) 
+```
+
+Predictive modelling w gwr
 
 ```{r}
 gwr_bw_train_ad <- bw.gwr(resale_price ~ floor_area_sqm +
@@ -102,6 +118,21 @@ gwr_ad <- gwr.basic(formula = resale_price ~ floor_area_sqm +
                 kernel="gaussian",
                 adaptive=TRUE,
                 longlat=FALSE)
+```
+
+```{r}
+gwr_pred <- gwr.predict(formula = resale_price ~ floor_area_sqm +
+                          storey_order + remaining_lease_mths + PROX_CBD +
+                          PROX_ELDERLYCARE + PROX_HAWKER + PROX_MRT + 
+                          PROX_PARK + PROX_MALL + PROX_SUPERMARKET + 
+                          WITHIN_350M_KINDERGARTEN + WITHIN_350M_CHILDCARE +
+                          WITHIN_350M_BUS + WITHIN_1KM_PRISCH, 
+                        data=train_data, 
+                        predictdata = test_data, 
+                        bw=20, 
+                        kernel = 'gaussian', 
+                        adaptive=TRUE, 
+                        longlat = FALSE)
 ```
 
 ```{r}
@@ -145,22 +176,22 @@ rf_pred <- predict(rf,
 ```
 
 ```{r}
-rf_pred_df <- as.data.frame(rf_pred) %>%
+rf_pred_df <- as.data.frame(rf_pred$predictions) %>%
   rename(rf_pred = "rf_pred$predictions")
 ```
 
 ```{r}
-grf_ad <- grf(formula = resale_price ~ floor_area_sqm +
-                  storey_order + remaining_lease_mths +
-                  PROX_CBD + PROX_ELDERLYCARE + PROX_HAWKER +
-                  PROX_MRT + PROX_PARK + PROX_MALL + 
-                  PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
-                  WITHIN_350M_CHILDCARE + WITHIN_350M_BUS +
-                  WITHIN_1KM_PRISCH,
-                data=train_data_nogeom,
-                bw=20,
-                kernel="adaptive",
-                coords=coords_train)
+set.seed(1234)
+grf_ad <- grf(formula = resale_price ~ floor_area_sqm + storey_order +
+                remaining_lease_mths + PROX_CBD + PROX_ELDERLYCARE + 
+                PROX_HAWKER + PROX_MRT + PROX_PARK + PROX_MALL + 
+                PROX_SUPERMARKET + WITHIN_350M_KINDERGARTEN +
+                WITHIN_350M_CHILDCARE + WITHIN_350M_BUS +
+                WITHIN_1KM_PRISCH,
+              dframe=train_data_nogeom, 
+              bw=20,
+              kernel="adaptive",
+              coords=coords_train)
 ```
 
 ```{r}
@@ -240,14 +271,14 @@ ggplot(data=test_longer,
         geom_text(data=test_longer, 
                   aes(x=Inf, y=Inf,
                     label=paste("RMSE: ", round(rmse, 2))),
-                  hjust = 1.1, vjust = 1.1
+                  hjust = 1.1, vjust = 1.1,
                   color="black", size=4)
 ```
 
 ```{r}
 var_imp <- data.frame(
   Variable = names(grf_ad$Global.Model$variable.importance),
-  Importance = grf_ad$Global.Model$vairable.importance
+  Importance = grf_ad$Global.Model$variable.importance
 )
 ```
 
