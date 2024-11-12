@@ -15,17 +15,19 @@ pacman::p_load(sf, tmap, tidyverse, httr, performance)
 
 ```{r}
 folder_path <- "data"
-file_list <- list.files(path = folder_path,
-                        pattern = "^realis.*\\.csv$",
+file_list <- list.files(path = folder_path, 
+                        pattern = "^realis.*\\.csv$", 
                         full.names = TRUE)
 
 realis_data <- file_list %>%
   map_dfr(read_csv)
+```
 
+```{r}
 condo_resale <- realis_data %>%
   mutate(`Sale Date` = dmy(`Sale Date`)) %>%
   filter(`Type of Sale` == "Resale" &
-          `Property Type` == "Condominium")
+           `Property Type` == "Condominium")
 ```
 
 ```{r}
@@ -82,4 +84,3 @@ condo_resale_sf <- condo_resale_sf %>%
 ```
 
 geospatial points can overlap! remember to jitter if there are any duplicates/overlaps.
-
